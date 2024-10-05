@@ -7,12 +7,18 @@ import {
 } from '@dnd-kit/core';
 import { Item } from './Item'; // Import the Item component
 
+import Profile from './Profile';
+
 // Grid size (150px * 150px)
 const GRID_SIZE = 150;
 
 const initialItems = [
   { id: 'item-1', x: 0, y: 0 },
   { id: 'item-2', x: 150, y: 0 },
+  { id: 'item-3', x: 300, y:0 },
+  { id: 'item-4', x: 0, y:150 },
+  { id: 'item-5', x: 150, y:150 },
+  { id: 'item-6', x: 300, y:150 }
 ];
 
 export const Grid = () => {
@@ -66,19 +72,33 @@ export const Grid = () => {
   
   return (
 
-    <div>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={rectIntersection} // Use collision detection to handle overlap
-        onDragEnd={handleDragEnd}
-      >
-        <div className="grid-container relative w-full h-full">
-          {items.map((item) => (
-            <Item key={item.id} id={item.id} x={item.x} y={item.y} />
-          ))}
-        </div>
-      </DndContext>
+    <>
+    <div className='flex px-4 py-4 justify-end'>
+      <button className='bg-slate-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2'>
+        <i className='fa-solid fa-wallet'></i>{" "}{" "}Connect Wallet
+      </button>
     </div>
+    <div className='flex flex-col items-center'>
+      <div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={rectIntersection} // Use collision detection to handle overlap
+          onDragEnd={handleDragEnd}
+        >
+          <Profile/>
+
+          <div className='grid grid-cols-3 gap-4 py-8 -ms-16 sm:p-4'>
+            <div className='col-span-3'>
+              {items.map((item) => (
+                <Item key={item.id} id={item.id} x={item.x} y={item.y} />
+              ))}
+            </div>
+          </div>
+          
+        </DndContext>
+      </div>
+    </div>
+    </>
    
   );
 };
