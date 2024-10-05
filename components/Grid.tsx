@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import {
   DndContext,
-  closestCenter,
   useSensor,
   PointerSensor,
-  rectIntersection,
+  rectIntersection
 } from '@dnd-kit/core';
-import { arrayMove } from '@dnd-kit/sortable';
 import { Item } from './Item'; // Import the Item component
 
 // Grid size (150px * 150px)
@@ -14,7 +12,7 @@ const GRID_SIZE = 150;
 
 const initialItems = [
   { id: 'item-1', x: 0, y: 0 },
-  { id: 'item-2', x: 150, y: 150 },
+  { id: 'item-2', x: 150, y: 0 },
 ];
 
 export const Grid = () => {
@@ -23,81 +21,58 @@ export const Grid = () => {
   // Sensors for pointer input
   const sensors = [useSensor(PointerSensor)];
 
-  // Handle the drag end event
+  const roundToGrid = (value, gridSize) => Math.round(value / gridSize) * gridSize;
   const handleDragEnd = (event) => {
-    const { active, over, delta } = event;
+    const { active, delta } = event;
+  
+     // Find the currently dragged item
+  const currentItem = items.find((item) => item.id === active.id);
 
-    // Detect collision
-    if (over && active.id !== over.id) {
-      // Push logic if a collision is detected
-      pushItems(over.id);
+  if (!currentItem) return;
+
+  // Get the current X and Y of the item and add the delta
+    let newX = roundToGrid(currentItem.x + delta.x, GRID_SIZE);
+    let newY = roundToGrid(currentItem.y + delta.y, GRID_SIZE);
+    newX = newX < 0 ? 0 : newX;
+    newY = newY < 0 ? 0 : newY;
+  
+    console.log(`Dragged item: ${active.id}`);
+    console.log(`NewX: ${newX}, NewY: ${newY}`);
+    console.log(`Position Occupied: ${isPositionOccupied(newX, newY)}`);
+  
+    // Cancel movement if the new position is occupied
+    if (!isPositionOccupied(newX, newY)) {
+      setItems((items) =>
+        items.map((item) =>
+          item.id === active.id ? { ...item, x: newX, y: newY } : item
+        )
+      );
+    } else {
+      console.log(`Position ${newX}, ${newY} is occupied, canceling move.`);
     }
-
-    setItems((items) =>
-      items.map((item) =>
-        item.id === active.id
-          ? {
-              ...item,
-              x: Math.max(0, Math.round((item.x + delta.x) / GRID_SIZE) * GRID_SIZE),
-              y: Math.max(0, Math.round((item.y + delta.y) / GRID_SIZE) * GRID_SIZE),
-            }
-          : item
-      )
-    );
   };
-
-  const pushItems = (overId) => {
-    // Find the item being overlapped
-    const overlappedItem = items.find((item) => item.id === overId);
-
-    if (!overlappedItem) return;
-
-    // Find the next available position based on current position
-    const nextPosition = findNextAvailablePosition(overlappedItem.x, overlappedItem.y);
-
-    // Move the overlapped item to the next available position
-    setItems((items) =>
-      items.map((item) =>
-        item.id === overId
-          ? {
-              ...item,
-              x: nextPosition.x,
-              y: nextPosition.y,
-            }
-          : item
-      )
-    );
-  };
-
-  const findNextAvailablePosition = (x, y) => {
-    // Check if the next position down is available
-    const nextY = y + GRID_SIZE;
-    const nextX = x + GRID_SIZE;
-    
-    if (!isPositionOccupied(x, nextY)) {
-      return { x, y: nextY };
-    }
-
-    if (!isPositionOccupied(nextX, y)) {
-      return { x: nextX, y };
-    }
-
-    return { x, y };
-  };
-
+  
+  // Check if any item occupies the given position
   const isPositionOccupied = (x, y) => {
-    // Check if any item occupies this position
-    return items.some((item) => item.x === x && item.y === y);
+    items.forEach((item) => {
+      console.log(`Checking position: Item ID ${item.id}, X: ${item.x}, Y: ${item.y}`);
+    });
+  
+    const occupied = items.some((item) => item.x === x && item.y === y);
+    console.log(`Position (${x}, ${y}) is ${occupied ? "occupied" : "free"}`);
+    
+    return occupied;
   };
-
+  
   return (
+
     <div>
-     <DndContext
+      <DndContext
         sensors={sensors}
-        collisionDetection={rectIntersection} // Detects overlap between items
+        collisionDetection={rectIntersection} // Use collision detection to handle overlap
         onDragEnd={handleDragEnd}
       >
-        <div className="grid-container relative w-full h-full bg-gray-100">
+        <div className="grid-container relative w-full h-full">
           {items.map((item) => (
             <Item key={item.id} id={item.id} x={item.x} y={item.y} />
           ))}

@@ -1,9 +1,11 @@
+// components/Item.tsx
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 
 // Grid size (150px * 150px)
 const GRID_SIZE = 150;
+const ITEM_GAP = 5;
 
 interface ItemProps {
   id: string;
@@ -24,21 +26,24 @@ export const Item = ({ id, x, y }: ItemProps) => {
   finalY = finalY < 0 ? 0 : finalY;
 
   // Style for each item
-  const style = {
+  const style = { 
     position: 'absolute',
-    width: GRID_SIZE,
-    height: GRID_SIZE,
+    width: GRID_SIZE - 10,
+    height: GRID_SIZE - 10,
     transform: CSS.Translate.toString({
-      x: finalX,
-      y: finalY,
+      x: finalX + ITEM_GAP,
+      y: finalY + ITEM_GAP,
     }),
     backgroundColor: isDragging ? 'lightgrey' : 'white',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: '25px',
+    borderRadius: '30px',
     cursor: 'grab',
+    zIndex: isDragging ? 2 : 1, 
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.1)',
   };
+  
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
