@@ -14,25 +14,21 @@ interface ItemProps {
   token_name: string,
   title: string;
   description: string;
-  profit_val: string;
-  loss_val: string;
+  wallet_val: string;
   token_img_url: string;
 }
 
-export const Item = ({ id, x, y, token_name, title, description, profit_val, loss_val, token_img_url }: ItemProps) => {
+export const Item = ({ id, x, y, token_name, title, description, wallet_val, token_img_url }: ItemProps) => {
   // Use the useDraggable hook from dnd-kit to enable dragging
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id,
   });
 
   // Calculate the correct transformation by combining x, y, and current transform
-  // let finalX = transform?.x ? x + transform.x : x;
-  // let finalY = transform?.y ? y + transform.y : y;
-  // finalX = finalX < 0 ? 0 : finalX;
-  // finalY = finalY < 0 ? 0 : finalY;
-
-  let finalX = x + (transform?.x || 0);
-  let finalY = y + (transform?.y || 0);
+  let finalX = transform?.x ? x + transform.x : x;
+  let finalY = transform?.y ? y + transform.y : y;
+  finalX = finalX < 0 ? 0 : finalX;
+  finalY = finalY < 0 ? 0 : finalY;
 
   // Style for each item
   const style = { 
@@ -57,7 +53,9 @@ export const Item = ({ id, x, y, token_name, title, description, profit_val, los
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <div className='grid grid-rows-3 grid-flow-col'>
-        <img className="rounded-full" src={token_img_url}/>
+        <div className='flex justify-center items-center w-full mb-2'>
+          <img className="rounded-full" src={token_img_url}/>
+        </div>
         <h5 className="text-1xl font-medium text-slate-900">{title}</h5>
         <span className="text-1xl text-gray-500 -mt-4">{token_name}</span> 
       </div>

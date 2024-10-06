@@ -35,55 +35,54 @@ export const Profile = ({}) => {
     }
 
     return (<>
-        <div className='flex items-center space-x-4 ms-8'>
-            <div>
-                
-                {isEditedTitle ? (
-                    <input
-                    type='text'
-                    value={title}
-                    onChange={handleTitleChange}
-                    autoFocus
-                    className='text-2xl font-extrabold py-1 px-2 border-b-2 border-white bg-transparent focus:outline-none text-white'
-                    />
-                ) : (
-                    <h1 className='font-extrabold text-2xl py-1 text-white'>{title ?? 'Write Something'}</h1>
-                )}
+        <div className='flex justify-center items-center w-full py-8'>
+            <div className='flex flex-col items-start mr-4'>
+                <div className='flex items-center mb-2'>
+                    {isEditedTitle ? (
+                        <input
+                        type='text'
+                        value={title}
+                        onChange={handleTitleChange}
+                        autoFocus
+                        className='text-2xl font-extrabold py-1 px-2 border-b-2 border-white bg-transparent focus:outline-none text-white'
+                        />
+                    ) : (
+                        <h1 className='font-extrabold text-2xl py-1 text-white'>{title ?? 'Write Something'}</h1>
+                    )}
 
-                {isEditedTitle ? (
-                    <button onClick={handleSaveTitle} className='text-xl bg-clip-text bg-transparent text-white py-1 px-2 rounded focus:outline-none'>
+                    {isEditedTitle ? (
+                        <button onClick={handleSaveTitle} className='text-xl bg-clip-text bg-transparent text-white py-1 px-2 rounded focus:outline-none'>
+                            <i className='fa-solid fa-floppy-disk'></i>
+                        </button>
+                    ) : (
+                        <button onClick={handleEditTitle} className='text-sm bg-clip-text text-white ms-2'>
+                            <i className='fa-solid fa-pencil'></i>
+                        </button>
+                    )}
+                </div>
+             
+                <div className='flex items-center'>
+                    {isEditedCaption ? (
+                        <input type='text'
+                        value={caption}
+                        onChange={handleCaptionChange}
+                        autoFocus
+                        className='text-2xl font-extrabold py-1 px-2 border-b-2 border-white bg-transparent focus:outline-none text-white'
+                        />
+                    ) : (
+                        <p className='text-1xl font-medium text-white'>{caption ?? 'Write Any Caption'}</p>
+                    )}
+
+                    {isEditedCaption ? (
+                    <button onClick={handleSaveCaption} className='text-xl bg-clip-text bg-transparent text-white py-1 px-2 rounded focus:outline-none'>
                         <i className='fa-solid fa-floppy-disk'></i>
                     </button>
-                ) : (
-                    <button onClick={handleEditTitle} className='text-sm bg-clip-text text-white'>
-                        <i className='fa-solid fa-pencil'></i>
-                    </button>
-                )}
-
-                <br/><br/>
-
-                {isEditedCaption ? (
-                    <input type='text'
-                    value={caption}
-                    onChange={handleCaptionChange}
-                    autoFocus
-                    className='text-2xl font-extrabold py-1 px-2 border-b-2 border-white bg-transparent focus:outline-none text-white'
-                    />
-                ) : (
-                    <p className='text-1xl font-medium text-white'>{caption ?? 'Write Any Caption'}</p>
-                )}
-
-                {isEditedCaption ? (
-                <button onClick={handleSaveCaption} className='text-xl bg-clip-text bg-transparent text-white py-1 px-2 rounded focus:outline-none'>
-                    <i className='fa-solid fa-floppy-disk'></i>
-                </button>
-                ) : (
-                    <button onClick={handleEditCaption} className='text-sm bg-clip-text text-white'>
-                        <i className='fa-solid fa-pencil'></i>
-                    </button>
-                )}
-
-
+                    ) : (
+                        <button onClick={handleEditCaption} className='text-sm bg-clip-text text-white ms-2'>
+                            <i className='fa-solid fa-pencil'></i>
+                        </button>
+                    )}
+                </div>
             </div>
           
             <img
