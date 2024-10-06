@@ -96,9 +96,14 @@ export const Grid = () => {
 
     <>
     <div className='flex px-4 py-4 lg:justify-end sm:justify-center'>
-      <button className='bg-slate-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2'>
-        <i className='fa-solid fa-wallet'></i>{" "}{" "}Connect Wallet
-      </button>
+      <div className='flex space-x-2'>
+        <button className='bg-slate-900 font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 me-2 text-white'>
+          <i className='fa-solid fa-share'></i>{" "}{" "}Flex Your Porto
+        </button>
+        <button className='bg-slate-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2'>
+          <i className='fa-solid fa-wallet'></i>{" "}{" "}Connect Wallet
+        </button>
+      </div>
     </div>
     <div>
       <div>
