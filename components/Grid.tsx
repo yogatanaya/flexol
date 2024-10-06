@@ -154,8 +154,36 @@ export const Grid = () => {
     </div>
 
     <div className='flex justify-center items-center w-full py-8'>
-      <div className='flex flex-col ms-10'>
+      <Profile/>
+    </div>
+
+    <div className='flex justify-center items-center'>
+      <DndContext 
+      sensors={sensors}
+      collisionDetection={rectIntersection}
+      onDragEnd={handleDragEnd}
+      >
+        <div className='relative' style={{ width: '450px', height: '340px' }}>   
+          {items.map((item) => (
+            <Item 
+            key={item.id} 
+            id={item.id} 
+            x={item.x} 
+            y={item.y} 
+            title={item.title}
+            token_name={item.token_name}
+            description={item.description}
+            wallet_val={item.wallet_val}
+            token_img_url={item.token_img_url}
+            />
+          ))} 
+        </div>
+      </DndContext>
+    </div>
+
+    <div className='flex justify-center items-center' >
       {formOpened ? (
+
         <form onSubmit={handleElementSubmit} className='flex flex-col space-y-2 w-full max-w-md'>
           <div className='flex flex-col'>
               <label htmlFor='titleElm' className='mb-1 text-sm font-medium text-gray-400'>Title</label>
@@ -194,40 +222,17 @@ export const Grid = () => {
             Submit
           </button>
         </form>
-        ):(
+      ):(
         <button className='bg-pink-500 font-bold py-2 px-4 rounded-full focus:outline-none focus:ring-2 me-2 text-white'
         onClick={handleFormOpened}
         >
           <i className='fa-solid fa-plus'></i>{" "}New Element
         </button>
-        )}
-      </div>
-      <Profile/>
+      )}
+
+     
     </div>
 
-    <div className='flex justify-center items-center'>
-      <DndContext 
-      sensors={sensors}
-      collisionDetection={rectIntersection}
-      onDragEnd={handleDragEnd}
-      >
-        <div className='relative' style={{ width: '450px', height: '340px' }}>   
-          {items.map((item) => (
-            <Item 
-            key={item.id} 
-            id={item.id} 
-            x={item.x} 
-            y={item.y} 
-            title={item.title}
-            token_name={item.token_name}
-            description={item.description}
-            wallet_val={item.wallet_val}
-            token_img_url={item.token_img_url}
-            />
-          ))} 
-        </div>
-      </DndContext>
-    </div>
   </>
    
   );
