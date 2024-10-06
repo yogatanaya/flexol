@@ -20,10 +20,13 @@ export const Item = ({ id, x, y }: ItemProps) => {
   });
 
   // Calculate the correct transformation by combining x, y, and current transform
-  let finalX = transform?.x ? x + transform.x : x;
-  let finalY = transform?.y ? y + transform.y : y;
-  finalX = finalX < 0 ? 0 : finalX;
-  finalY = finalY < 0 ? 0 : finalY;
+  // let finalX = transform?.x ? x + transform.x : x;
+  // let finalY = transform?.y ? y + transform.y : y;
+  // finalX = finalX < 0 ? 0 : finalX;
+  // finalY = finalY < 0 ? 0 : finalY;
+
+  let finalX = x + (transform?.x || 0);
+  let finalY = y + (transform?.y || 0);
 
   // Style for each item
   const style = { 
@@ -47,7 +50,14 @@ export const Item = ({ id, x, y }: ItemProps) => {
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      {id}
+      <div className='grid grid-rows-3 grid-flow-col'>
+        <div>
+          <h1 className='text-1xl text-black font-extrabold'>$TOKEN</h1>
+        </div>
+        <div className='row'>
+          <p className='text-3xl text-green-500 font-extrabold'>PL%</p>
+        </div>
+      </div>
     </div>
   );
 };

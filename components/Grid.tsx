@@ -13,12 +13,19 @@ import Profile from './Profile';
 const GRID_SIZE = 150;
 
 const initialItems = [
-  { id: 'item-1', x: 0, y: 0 },
-  { id: 'item-2', x: 150, y: 0 },
-  { id: 'item-3', x: 300, y:0 },
-  { id: 'item-4', x: 0, y:150 },
-  { id: 'item-5', x: 150, y:150 },
-  { id: 'item-6', x: 300, y:150 }
+  { id: 'item-1', x: 0 * GRID_SIZE, y: 0*GRID_SIZE },
+  { id: 'item-2', x: 1 * GRID_SIZE, y: 0*GRID_SIZE },
+  { id: 'item-3', x: 2 * GRID_SIZE, y:0*GRID_SIZE },
+  { id: 'item-4', x: 3 * GRID_SIZE, y:0*GRID_SIZE },
+  { id: 'item-5', x: 4 * GRID_SIZE, y:0*GRID_SIZE },
+  { id: 'item-6', x: 5 * GRID_SIZE, y:0*GRID_SIZE },
+
+  { id: 'item-7', x: 0 * GRID_SIZE, y: 1*GRID_SIZE },
+  { id: 'item-8', x: 1 * GRID_SIZE, y: 1*GRID_SIZE },
+  { id: 'item-9', x: 2 * GRID_SIZE, y:1*GRID_SIZE },
+  { id: 'item-10', x: 3 * GRID_SIZE, y:1*GRID_SIZE },
+  { id: 'item-11', x: 4 * GRID_SIZE, y:1*GRID_SIZE },
+  { id: 'item-12', x: 5 * GRID_SIZE, y:1*GRID_SIZE }
 ];
 
 export const Grid = () => {
@@ -27,16 +34,26 @@ export const Grid = () => {
   // Sensors for pointer input
   const sensors = [useSensor(PointerSensor)];
 
-  const roundToGrid = (value, gridSize) => Math.round(value / gridSize) * gridSize;
+  // const roundToGrid = (value, gridSize) => Math.round(value / gridSize) * gridSize;
+
   const handleDragEnd = (event) => {
     const { active, delta } = event;
-  
-     // Find the currently dragged item
-  const currentItem = items.find((item) => item.id === active.id);
 
-  if (!currentItem) return;
+    // Find the currently dragged item
+    const currentItem = items.find((item) => item.id === active.id);
 
-  // Get the current X and Y of the item and add the delta
+    if (!currentItem) return;
+
+    setItems((items) => 
+      items.map((item) => 
+        item.id === active.id 
+        ? { ...item, x:currentItem.x, y:currentItem.y+delta.y } 
+        : item 
+      )
+    );
+
+    // Get the current X and Y of the item and add the delta
+    /*
     let newX = roundToGrid(currentItem.x + delta.x, GRID_SIZE);
     let newY = roundToGrid(currentItem.y + delta.y, GRID_SIZE);
     newX = newX < 0 ? 0 : newX;
@@ -56,9 +73,12 @@ export const Grid = () => {
     } else {
       console.log(`Position ${newX}, ${newY} is occupied, canceling move.`);
     }
+    */
+
   };
   
   // Check if any item occupies the given position
+  /*
   const isPositionOccupied = (x, y) => {
     items.forEach((item) => {
       console.log(`Checking position: Item ID ${item.id}, X: ${item.x}, Y: ${item.y}`);
@@ -69,16 +89,18 @@ export const Grid = () => {
     
     return occupied;
   };
+  */
+
   
   return (
 
     <>
-    <div className='flex px-4 py-4 justify-end'>
+    <div className='flex px-4 py-4 lg:justify-end sm:justify-center'>
       <button className='bg-slate-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2'>
         <i className='fa-solid fa-wallet'></i>{" "}{" "}Connect Wallet
       </button>
     </div>
-    <div className='flex flex-col items-center'>
+    <div>
       <div>
         <DndContext
           sensors={sensors}
@@ -87,12 +109,10 @@ export const Grid = () => {
         >
           <Profile/>
 
-          <div className='grid grid-cols-3 gap-4 py-8 -ms-16 sm:p-4'>
-            <div className='col-span-3'>
+          <div className='grid grid-cols-2 gap-4 py-8 sm:p-4 sm:grid-cols-2 lg:grid-cols-3'>
               {items.map((item) => (
                 <Item key={item.id} id={item.id} x={item.x} y={item.y} />
               ))}
-            </div>
           </div>
           
         </DndContext>
