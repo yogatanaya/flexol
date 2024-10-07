@@ -11,14 +11,13 @@ interface ItemProps {
   id: string;
   x: number;
   y: number;
-  token_name: string,
-  title: string;
-  description: string;
-  wallet_val: string;
+  token_name: string;
+  token_address: string;
+  trade_count: string;
   token_img_url: string;
 }
 
-export const Item = ({ id, x, y, token_name, title, description, wallet_val, token_img_url }: ItemProps) => {
+export const Item = ({ id, x, y, token_name, token_address, trade_count, token_img_url }: ItemProps) => {
   // Use the useDraggable hook from dnd-kit to enable dragging
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id,
@@ -49,15 +48,18 @@ export const Item = ({ id, x, y, token_name, title, description, wallet_val, tok
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.1)',
   };
   
+  console.log(trade_count)
 
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <div className='grid grid-rows-3 grid-flow-col'>
-        <div className='flex justify-center items-center w-full mb-2'>
+        <div className='flex items-left w-full mb-1'>
           <img className="rounded-full" src={token_img_url}/>
         </div>
-        <h5 className="text-1xl font-medium text-slate-900">{title}</h5>
-        <span className="text-1xl text-gray-500 -mt-4">{token_name}</span> 
+        <div className='flex flex-col mt-2'>
+          <h5 className="text-1xl font-extrabold text-slate-900 mb-4">{token_name ?? "Unknown."}</h5>
+          <span className="text-1md text-gray-300 font-semibold -mt-4">{trade_count ?? 0}x traded</span> 
+        </div>
       </div>
     </div>
   );

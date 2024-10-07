@@ -6,6 +6,14 @@ import {
   rectIntersection
 } from '@dnd-kit/core';
 
+import { ChartPieIcon } from '@heroicons/react/16/solid';
+import { PresentationChartLineIcon } from '@heroicons/react/16/solid';
+import { PercentBadgeIcon } from '@heroicons/react/16/solid';
+import { CalculatorIcon } from '@heroicons/react/16/solid';
+import { ShareIcon } from '@heroicons/react/16/solid';
+import { WalletIcon } from '@heroicons/react/16/solid';
+import { XCircleIcon } from '@heroicons/react/16/solid';
+
 import { Item } from './Item'; // Import the Item component
 import Profile from './Profile';
 
@@ -17,6 +25,8 @@ const initialItems = [
     x: 0, 
     y: 0,
     token_name: '$HNTUSD',
+    token_address: '',
+    trade_count: '5',
     title: 'Portfolio 1',
     description: '!!!lorem ipsum!!!',
     wallet_val: '+55.25%',
@@ -26,6 +36,8 @@ const initialItems = [
     x: 150, 
     y: 0,
     token_name: '$ETHUSD',
+    token_address: '',
+    trade_count: '2',
     title: 'Portfolio 2',
     description: '!!!lorem ipsum!!!',
     wallet_val: '+0.00%',
@@ -35,6 +47,8 @@ const initialItems = [
     x: 300, 
     y:0,
     token_name: '$BNBUSD',
+    token_address: '',
+    trade_count: '4',
     title: 'Portfolio 3',
     description: '!!!lorem ipsum!!!',
     wallet_val: '+00.00%',
@@ -46,23 +60,18 @@ const initialItems = [
 export const Grid = () => {
 
   const [items, setItems] = useState(initialItems);
-
-  const [titleElm, setTitleElm] = useState("");
-  const [tokenName, setTokenName] = useState("");
-  const [description, setDescription] = useState("");
+  
+  const [tokenName, setTokenName ] = useState("");
+  const [tokenAddress, setTokenAddress] = useState("");
 
   const [formOpened, setFormOpened] = useState(false);
 
-  const handleTitleElmChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTitleElm(event.target.value);
+  const handleChangeTokenAddress = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTokenAddress(event.target.value);
   }
 
-  const handleTokenNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeTokenName = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTokenName(event.target.value);
-  }
-
-  const handleDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDescription(event.target.value);
   }
 
   const handleFormOpened = () => {
@@ -70,22 +79,17 @@ export const Grid = () => {
   }
 
   const handleElementSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+
     event.preventDefault();
+
     const newItem = {
       id: `item-${items.length + 1}`,
       x: 0,
       y: 0,
-      token_name: tokenName,
-      title: titleElm,
-      description: description,
-      wallet_val: '+0.00%',
-      token_img_url: 'https://placehold.co/50x50'
+      token_address: tokenAddress,    
     };
     setItems(prevItems => [...prevItems, newItem]);
-    setFormOpened(false);
-    setTitleElm('');
-    setTokenName('');
-    setDescription('');
+    setTokenAddress("");
   }
 
   // Sensors for pointer input
@@ -144,11 +148,8 @@ export const Grid = () => {
     
     <div className='flex px-4 py-4 lg:justify-end sm:justify-center'>
       <div className='flex space-x-2'>
-        <button className='bg-slate-900 font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 me-2 text-white'>
-          <i className='fa-solid fa-share'></i>{" "}{" "}Flex Your Porto
-        </button>
-        <button className='bg-slate-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2'>
-          <i className='fa-solid fa-wallet'></i>{" "}{" "}Connect Wallet
+        <button className='bg-slate-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 flex items-center'>
+          <WalletIcon className='size-5'/>&nbsp;&nbsp;Connect Wallet
         </button>
       </div>
     </div>
@@ -163,18 +164,17 @@ export const Grid = () => {
       collisionDetection={rectIntersection}
       onDragEnd={handleDragEnd}
       >
-        <div className='relative' style={{ width: '450px', height: '340px' }}>   
+        <div style={{ width: '450px', height: '50vh' }}>   
           {items.map((item) => (
             <Item 
             key={item.id} 
             id={item.id} 
             x={item.x} 
             y={item.y} 
-            title={item.title}
             token_name={item.token_name}
-            description={item.description}
-            wallet_val={item.wallet_val}
+            trade_count={item.trade_count}
             token_img_url={item.token_img_url}
+            token_address={item.token_address}
             />
           ))} 
         </div>
@@ -185,49 +185,59 @@ export const Grid = () => {
       {formOpened ? (
 
         <form onSubmit={handleElementSubmit} className='flex flex-col space-y-2 w-full max-w-md'>
-          <div className='flex flex-col'>
-              <label htmlFor='titleElm' className='mb-1 text-sm font-medium text-gray-400'>Title</label>
+          <div className='relative group'>
+              <label htmlFor='token_address' className='mb-1 text-1xl font-extrabold text-gray-100'>Address</label>
               <input
               type='text'
-              value={titleElm}
-              onChange={handleTitleElmChange}
-              placeholder='e. g: My Portfolio'
+              value={tokenAddress}
+              onChange={handleChangeTokenAddress}
+              placeholder='Paste Token Address from Your Wallet'
               autoFocus={true}
-              className='text-2xl font-extrabold py-1 px-2 border-b-2 border-white bg-transparent focus:outline-none text-white'
+              className='text-1xl font-medium py-1 px-1 border-1 border-white bg-transparent focus:outline-none text-white rounded-full w-full'
               />
+
+              <button className='mx-1 text-gray-100 bg-transparent' onClick={handleFormOpened}>
+                <XCircleIcon className='size-7'/>
+              </button>
           </div>
-          <div className='flex flex-col'>
-            <label htmlFor='description' className='mb-1 text-sm font-medium text-gray-400'>Description</label>
-            <input
-              type='text'
-              value={description}
-              onChange={handleDescriptionChange}
-              placeholder='e. g: My HODL Savings✨'
-              autoFocus={true}
-              className='text-2xl font-extrabold py-1 px-2 border-b-2 border-white bg-transparent focus:outline-none text-white'
-              />
-          </div>
-          <div className='flex flex-col'>
-            <label htmlFor='tokenName' className='mb-1 text-sm font-medium text-gray-400'>Token Name</label>
-            <input
-            type='text'
-            value={tokenName}
-            onChange={handleTokenNameChange}
-            placeholder='e. g: $HNTUSD or $ETH'
-            autoFocus={true}
-            className='text-2xl font-extrabold py-1 px-2 border-b-2 border-white bg-transparent focus:outline-none text-white'
-            />
-          </div>
-          <button type="submit" className='bg-pink-500 font-bold py-2 px-4 rounded-full focus:outline-none focus:ring-2 me-2 text-white'>
-            Submit
-          </button>
+        
         </form>
       ):(
-        <button className='bg-pink-500 font-bold py-2 px-4 rounded-full focus:outline-none focus:ring-2 me-2 text-white'
-        onClick={handleFormOpened}
-        >
-          <i className='fa-solid fa-plus'></i>{" "}New Element
-        </button>
+        <div className='flex items-center bg-gray-100 rounded-full p-2 shadow-lg'>
+
+          <div className='relative group'>
+            <button className='bg-green-400 font-bold p-2 rounded-full focus:outline-none focus:ring-2 me-2 text-white flex items-center'>
+              <ShareIcon className='size-5'/>&nbsp;&nbsp;Share
+            </button>
+          </div>
+
+          <div className='relative group'>
+            <button className='bg-white p-2 rounded-full mx-1 text-slate-900' onClick={handleFormOpened}>
+              <PresentationChartLineIcon className='size-5'/>
+            </button>
+            <span className="absolute bottom-full mb-2 w-max bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              WatchList
+            </span>
+          </div>
+
+          <div className='relative group'>
+            <button className='bg-white p-2 rounded-full mx-1 text-slate-900' onClick={handleFormOpened}>
+              <PercentBadgeIcon className='size-5'/>
+            </button>
+            <span className="absolute bottom-full mb-2 w-max bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              PnL
+            </span>
+          </div>
+
+          <div className='relative group'>
+            <button className='bg-white p-2 rounded-full mx-1 text-slate-900' onClick={handleFormOpened}>
+              <CalculatorIcon className='size-5'/>
+            </button>
+            <span className="absolute bottom-full mb-2 w-max bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              Transaction Count
+            </span>
+          </div>
+        </div>
       )}
 
      
