@@ -13,7 +13,7 @@ interface ItemProps {
   y: number;
   token_name: string;
   token_address: string;
-  trade_count: string;
+  trade_count: number;
   token_img_url: string;
 }
 

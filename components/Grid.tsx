@@ -6,13 +6,14 @@ import {
   rectIntersection
 } from '@dnd-kit/core';
 
-import { ChartPieIcon } from '@heroicons/react/16/solid';
+import { ChartPieIcon, PaperAirplaneIcon, PlusCircleIcon } from '@heroicons/react/16/solid';
 import { PresentationChartLineIcon } from '@heroicons/react/16/solid';
 import { PercentBadgeIcon } from '@heroicons/react/16/solid';
 import { CalculatorIcon } from '@heroicons/react/16/solid';
 import { ShareIcon } from '@heroicons/react/16/solid';
 import { WalletIcon } from '@heroicons/react/16/solid';
 import { XCircleIcon } from '@heroicons/react/16/solid';
+import { BookmarkIcon } from '@heroicons/react/16/solid';
 
 import { Item } from './Item'; // Import the Item component
 import Profile from './Profile';
@@ -27,9 +28,6 @@ const initialItems = [
     token_name: '$HNTUSD',
     token_address: '',
     trade_count: '5',
-    title: 'Portfolio 1',
-    description: '!!!lorem ipsum!!!',
-    wallet_val: '+55.25%',
     token_img_url: 'https://placehold.co/50x50'
   },
   { id: 'item-2',
@@ -38,9 +36,6 @@ const initialItems = [
     token_name: '$ETHUSD',
     token_address: '',
     trade_count: '2',
-    title: 'Portfolio 2',
-    description: '!!!lorem ipsum!!!',
-    wallet_val: '+0.00%',
     token_img_url: 'https://placehold.co/50x50'
   },
   { id: 'item-3',
@@ -49,9 +44,6 @@ const initialItems = [
     token_name: '$BNBUSD',
     token_address: '',
     trade_count: '4',
-    title: 'Portfolio 3',
-    description: '!!!lorem ipsum!!!',
-    wallet_val: '+00.00%',
     token_img_url: 'https://placehold.co/50x50'
   },
 ];
@@ -84,11 +76,16 @@ export const Grid = () => {
 
     const newItem = {
       id: `item-${items.length + 1}`,
-      x: 0,
-      y: 0,
-      token_address: tokenAddress,    
+      x: 150,
+      y: 300,
+      token_name: '$Unknown Token',
+      trade_count: 0,
+      token_address: tokenAddress  ,
+      token_img_url: 'https://placehold.co/50x50'
     };
+
     setItems(prevItems => [...prevItems, newItem]);
+
     setTokenAddress("");
   }
 
@@ -186,19 +183,26 @@ export const Grid = () => {
 
         <form onSubmit={handleElementSubmit} className='flex flex-col space-y-2 w-full max-w-md'>
           <div className='relative group'>
-              <label htmlFor='token_address' className='mb-1 text-1xl font-extrabold text-gray-100'>Address</label>
-              <input
-              type='text'
-              value={tokenAddress}
-              onChange={handleChangeTokenAddress}
-              placeholder='Paste Token Address from Your Wallet'
-              autoFocus={true}
-              className='text-1xl font-medium py-1 px-1 border-1 border-white bg-transparent focus:outline-none text-white rounded-full w-full'
-              />
+            <label htmlFor='token_address' className='mb-1 text-1xl font-extrabold text-gray-100'>Address</label>
+            <input
+            type='text'
+            value={tokenAddress}
+            onChange={handleChangeTokenAddress}
+            placeholder='Paste Token Address from Your Wallet'
+            autoFocus={true}
+            className='text-1xl font-medium py-1 px-1 border-1 border-white bg-transparent focus:outline-none text-white rounded-full w-full'
+            />
 
+            <div className='relative group'>
+              <button className='mx-1 text-white rounded-full bg-transparent p-2'>
+                <PlusCircleIcon className='size-7'/>
+              </button>
               <button className='mx-1 text-gray-100 bg-transparent' onClick={handleFormOpened}>
                 <XCircleIcon className='size-7'/>
               </button>
+            </div>
+
+
           </div>
         
         </form>
