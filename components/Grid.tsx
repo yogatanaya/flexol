@@ -6,7 +6,7 @@ import {
   rectIntersection
 } from '@dnd-kit/core';
 
-import { ChartPieIcon, PaperAirplaneIcon, PlusCircleIcon } from '@heroicons/react/16/solid';
+import { ChartPieIcon, CheckBadgeIcon, CircleStackIcon, CurrencyDollarIcon, PaperAirplaneIcon, PlusCircleIcon } from '@heroicons/react/16/solid';
 import { PresentationChartLineIcon } from '@heroicons/react/16/solid';
 import { PercentBadgeIcon } from '@heroicons/react/16/solid';
 import { CalculatorIcon } from '@heroicons/react/16/solid';
@@ -27,7 +27,7 @@ const initialItems = [
     y: 0,
     token_name: '$HNTUSD',
     token_address: '',
-    trade_count: '5',
+    trade_count: 5,
     token_img_url: 'https://placehold.co/50x50'
   },
   { id: 'item-2',
@@ -35,7 +35,7 @@ const initialItems = [
     y: 0,
     token_name: '$ETHUSD',
     token_address: '',
-    trade_count: '2',
+    trade_count: 2,
     token_img_url: 'https://placehold.co/50x50'
   },
   { id: 'item-3',
@@ -43,7 +43,7 @@ const initialItems = [
     y:0,
     token_name: '$BNBUSD',
     token_address: '',
-    trade_count: '4',
+    trade_count: 4,
     token_img_url: 'https://placehold.co/50x50'
   },
 ];
@@ -74,11 +74,15 @@ export const Grid = () => {
 
     event.preventDefault();
 
+    const lastItem = items[items.length -1];
+    const newX = lastItem ? lastItem.x + GRID_SIZE : 0;
+    const newY = lastItem && newX >= 450 ? lastItem.y + GRID_SIZE : lastItem?.y ?? 0;
+
     const newItem = {
       id: `item-${items.length + 1}`,
-      x: 150,
-      y: 300,
-      token_name: '$Unknown Token',
+      x: newX,
+      y: newY,
+      token_name: '$Unknown',
       trade_count: 0,
       token_address: tokenAddress  ,
       token_img_url: 'https://placehold.co/50x50'
@@ -139,6 +143,10 @@ export const Grid = () => {
     
     return occupied;
   };
+
+  const handleDiscardItem = (id: any) => {
+    setItems(items.filter(item => item.id !== id));
+  }
   
   return (
     <>
@@ -172,6 +180,7 @@ export const Grid = () => {
             trade_count={item.trade_count}
             token_img_url={item.token_img_url}
             token_address={item.token_address}
+            discardItem={handleDiscardItem}
             />
           ))} 
         </div>
@@ -195,7 +204,7 @@ export const Grid = () => {
 
             <div className='relative group'>
               <button className='mx-1 text-white rounded-full bg-transparent p-2'>
-                <PlusCircleIcon className='size-7'/>
+                <CheckBadgeIcon className='size-7'/>
               </button>
               <button className='mx-1 text-gray-100 bg-transparent' onClick={handleFormOpened}>
                 <XCircleIcon className='size-7'/>
@@ -211,7 +220,7 @@ export const Grid = () => {
 
           <div className='relative group'>
             <button className='bg-green-400 font-bold p-2 rounded-full focus:outline-none focus:ring-2 me-2 text-white flex items-center'>
-              <ShareIcon className='size-5'/>&nbsp;&nbsp;Share
+              <ShareIcon className='size-5'/>&nbsp;&nbsp;Flex
             </button>
           </div>
 
@@ -235,7 +244,7 @@ export const Grid = () => {
 
           <div className='relative group'>
             <button className='bg-white p-2 rounded-full mx-1 text-slate-900' onClick={handleFormOpened}>
-              <CalculatorIcon className='size-5'/>
+              <CurrencyDollarIcon className='size-5'/>
             </button>
             <span className="absolute bottom-full mb-2 w-max bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               Transaction Count
