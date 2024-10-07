@@ -1,4 +1,6 @@
 import React, { useState} from 'react';
+import { PencilSquareIcon } from '@heroicons/react/16/solid';
+import { CheckCircleIcon } from '@heroicons/react/16/solid';
 
 export const Profile = ({}) => {
 
@@ -52,11 +54,11 @@ export const Profile = ({}) => {
 
                     {isEditedTitle ? (
                         <button onClick={handleSaveTitle} className='text-xl bg-clip-text bg-transparent text-white py-1 px-2 rounded focus:outline-none'>
-                            <i className='fa-solid fa-floppy-disk'></i>
+                            <CheckCircleIcon className='size-5'/>
                         </button>
                     ) : (
                         <button onClick={handleEditTitle} className='text-sm bg-clip-text text-white ms-2'>
-                            <i className='fa-solid fa-pencil'></i>
+                            <PencilSquareIcon className='size-5'/>
                         </button>
                     )}
                 </div>
@@ -75,11 +77,11 @@ export const Profile = ({}) => {
 
                     {isEditedCaption ? (
                     <button onClick={handleSaveCaption} className='text-xl bg-clip-text bg-transparent text-white py-1 px-2 rounded focus:outline-none'>
-                        <i className='fa-solid fa-floppy-disk'></i>
+                        <CheckCircleIcon className='size-5'/>
                     </button>
                     ) : (
                         <button onClick={handleEditCaption} className='text-sm bg-clip-text text-white ms-2'>
-                            <i className='fa-solid fa-pencil'></i>
+                            <PencilSquareIcon className='size-5'/>
                         </button>
                     )}
                 </div>
