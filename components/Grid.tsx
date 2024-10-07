@@ -201,7 +201,7 @@ export const Grid = () => {
             onChange={handleChangeTokenAddress}
             placeholder='Paste Token Address from Your Wallet'
             autoFocus={true}
-            className='text-1xl font-medium py-1 px-1 border-1 border-white bg-transparent focus:outline-none text-white rounded-full w-full'
+            className='text-1xl font-medium py-2 px-2 border-1 bg-white border-white bg-transparent focus:outline-none text-slate-800 rounded-full w-full'
             />
 
             <div className='relative group'>
