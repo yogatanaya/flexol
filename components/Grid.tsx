@@ -144,8 +144,10 @@ export const Grid = () => {
     return occupied;
   };
 
-  const handleDiscardItem = (id: any) => {
+  const handleDiscardItem = (id: any) => { 
+    
     setItems(items.filter(item => item.id !== id));
+    
   }
   
   return (

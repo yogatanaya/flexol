@@ -57,10 +57,10 @@ export const Item = ({ id, x, y, token_name, token_address, trade_count, token_i
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <div className='grid grid-rows-3 grid-flow-col'>
        
-        <button className='absolute top-0 right-0 p-2 text-red-400'
+        <button className='absolute top-0 right-0 p-2 bg-white rounded-[30px]'
         onClick={() => discardItem(id)}
         >
-          <MinusIcon className='size-7'/>
+          <MinusIcon className='size-7 text-red-400'/>
         </button>
         
         <div className='flex items-left w-full mb-1'>
