@@ -56,7 +56,7 @@ export const Item = ({
 
   // Style for each item
   const style = { 
-    position: "absolute",
+    // position: Position | undefined,
     width: GRID_SIZE,
     height:GRID_SIZE,
     transform: CSS.Translate.toString({
