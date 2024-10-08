@@ -6,8 +6,6 @@ import {
   rectIntersection
 } from '@dnd-kit/core';
 
-import Image from 'next/image';
-
 import { ChartPieIcon, CheckBadgeIcon, CircleStackIcon, CurrencyDollarIcon, PaperAirplaneIcon, PlusCircleIcon } from '@heroicons/react/16/solid';
 import { PresentationChartLineIcon } from '@heroicons/react/16/solid';
 import { PercentBadgeIcon } from '@heroicons/react/16/solid';
@@ -21,7 +19,7 @@ import { Item, ItemProps } from './Item'; // Import the Item component
 import Profile from './Profile';
 
 import axios from 'axios';
-import { a } from 'framer-motion/client';
+import { a, base } from 'framer-motion/client';
 
 // Grid size (150px * 150px)
 const GRID_SIZE = 150;
@@ -67,13 +65,15 @@ const initialItems: ItemProps[] = [
 export const Grid = () => {
 
   const [items, setItems] = useState<ItemProps[]>([]);
+
+  const [ itemId, setItemId ] = useState(0);
   
   const [tokenName, setTokenName ] = useState("");
   const [tokenAddress, setTokenAddress] = useState("");
 
   const [formOpened, setFormOpened] = useState(false);
 
-  const [formType, setFormType ] = useState<"watchlist" | "pnl" | "tc" | null >();
+  const [formType, setFormType ] = useState<"watchlist" | "pnl" | "tc" | null >(null);
 
   const [error, setError] = useState(null);
 
@@ -114,34 +114,37 @@ export const Grid = () => {
         let data = res.data.pairs[0];
 
         let tokenName = "";
+        let value = "";
+        let symbol = "";
 
         switch(type) 
         {
           case 'watchlist': 
-            tokenName = data.baseToken.name;
-          break;
-          case 'pnl': 
-            tokenName = 'Unknown';
-          break;
           case 'tc':
-            tokenName = 'Unknown';
+            value = data.priceNative.toString();
+            tokenName = data.baseToken.name;
+            symbol = data.quoteToken.symbol;
+          case 'pnl': 
           break;
         }
 
         let imgUrl = data.info.imageUrl;
-        let randomNum = Math.floor(Math.random() * 100) +1;
 
-        let newItems = {
-          id: 'Item-'+randomNum,
+        let newItem = {
+          id: `Item-${itemId}`,
           x: currentX,
           y: currentY,
+          value: value,
+          symbol: symbol,
           token_name: tokenName,
           token_address: tokenAddress,
           token_img_url: imgUrl
         }
 
-        setItems(prevItems => [...prevItems, newItems]);
 
+        setItems(prevItems => [...prevItems, newItem]);
+
+        setItemId(prevItemId => prevItemId + 1);
   
       } catch(err: any) {
         setError(err.message);
@@ -169,6 +172,7 @@ export const Grid = () => {
     
     let newX = roundToGrid(currentItem.x + delta.x, GRID_SIZE);
     let newY = roundToGrid(currentItem.y + delta.y, GRID_SIZE);
+
     newX = newX < 0 ? 0 : newX;
     newY = newY < 0 ? 0 : newY;
   
@@ -180,14 +184,15 @@ export const Grid = () => {
     if (!isPositionOccupied(newX, newY)) {
       setItems((items) =>
         items.map((item) =>
-          item.id === active.id ? { ...item, x: newX, y: newY } : item
+          item.id == active.id ? { ...item, x: newX, y: newY } : item
         )
       );
     } else {
+      // return;
       console.log(`Position ${newX}, ${newY} is occupied, canceling move.`);
     }
     
-
+    
   };
   
   // Check if any item occupies the given position
@@ -205,8 +210,13 @@ export const Grid = () => {
 
   const handleDiscardItem = (id: any) => { 
     
-    setItems(items.filter((item) => item.id !== id));
-    
+    // Create a new array without mutating the original state
+    setItems(prevArray => {
+        const newArray = [...prevArray]; // Copy the previous array
+        newArray.pop();                  // Remove the last element
+        return newArray;                 // Return the new array
+     });
+
   }
   
   return (
@@ -236,7 +246,13 @@ export const Grid = () => {
         <div className='relative w-[90vw] max-w-full h-[90vh] flex justify-center'>
           <div className='relative w-full h-full items-center'>   
             {items.map((item) => (
-              <Item key={item.id} {...item} discardItem={handleDiscardItem}/>
+              <Item key={item.id} {...item} discardItem={handleDiscardItem}
+              formType={formType}
+              value={item.value}
+              symbol={item.symbol}
+              percentage={item.percentage}
+              indicator={item.indicator}
+              />
             ))} 
           </div>
         </div>
