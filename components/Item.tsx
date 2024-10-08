@@ -48,8 +48,8 @@ export const Item = ({
   // const centerY = useMemo(() => window.innerHeight / 2 - GRID_SIZE / 2, []);
 
   // Calculate the correct transformation by combining x, y, and current transform
-  let finalX = x * (GRID_SIZE + ITEM_GAP) + (transform?.x ?? 0);
-  let finalY = y * (GRID_SIZE + ITEM_GAP) + (transform?.y ?? 0);
+  let finalX = x + (transform?.x ?? 0);
+  let finalY = y + (transform?.y ?? 0);
   
   finalX = Math.max(finalX, 0);
   finalY = Math.max(finalY, 0);
@@ -62,8 +62,8 @@ export const Item = ({
     transform: CSS.Translate.toString({
       x: finalX,
       y: finalY,
-      scaleX: 1,
-      scaleY: 1
+      // scaleX: 1,
+      // scaleY: 1
     }),
     backgroundColor: isDragging ? 'lightgrey' : 'white',
     display: 'flex',
@@ -113,7 +113,7 @@ export const Item = ({
   };
   
   return (
-    <div ref={setNodeRef} {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <div className='relative w-full h-full p-4 bg-white rounded-[30px]'>
 
         <div className='absolute'>
