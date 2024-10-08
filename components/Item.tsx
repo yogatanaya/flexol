@@ -62,8 +62,8 @@ export const Item = ({
     transform: CSS.Translate.toString({
       x: finalX,
       y: finalY,
-      // scaleX: 1,
-      // scaleY: 1
+      scaleX: 0,
+      scaleY: 0
     }),
     backgroundColor: isDragging ? 'lightgrey' : 'white',
     display: 'flex',
@@ -102,7 +102,7 @@ export const Item = ({
   const exponentToSuperscript = (exp: number): string => {
     const superscriptMap: { [key: number]: string } = {
       0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 
-      // 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹", "-": "⁻"
+      6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹", "-": "⁻"
     };
   
     return exp
