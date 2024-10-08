@@ -314,9 +314,11 @@ export const Grid = () => {
               </div>
 
               <div className='relative group'>
-                <img src='/FLEXOL.svg' alt="logo" className='ml-4'
-                style={{ width: '98px', height: '50px', flexShrink: 0}}
-                />      
+                <div className='w-24 h-12 overflow-hidden'>
+                  <img src='/FLEXOL.svg' alt="logo" className='ml-2 -mt-5'
+                  style={{ width: '150px', height: '90px', objectFit: 'cover'}}
+                  />      
+                </div>
               </div>
 
             </div>

@@ -6,7 +6,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { EllipsisHorizontalCircleIcon, EllipsisHorizontalIcon, MinusIcon, TrashIcon } from '@heroicons/react/16/solid';
 
 // Grid size (150px * 150px)
-const GRID_SIZE = 150;
+const GRID_SIZE = 180;
 const ITEM_GAP = 6;
 
 export interface ItemProps {
@@ -62,7 +62,7 @@ export const Item = ({
   const style = { 
     position: 'absolute',
     width: GRID_SIZE - 10,
-    height: isCollapsed ? (GRID_SIZE /2) - 10 : GRID_SIZE - 10,
+    height: isCollapsed ? (GRID_SIZE /2) - 1 : GRID_SIZE - 1,
     transform: CSS.Translate.toString({
       x: finalX + ITEM_GAP,
       y: finalY + ITEM_GAP,
@@ -80,35 +80,41 @@ export const Item = ({
   
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <div className='relative w-full h-full p-2'>
+      <div className='relative w-full h-full p-4 bg-white rounded-[30px]'>
+
+        {/* token image in left corner */}
+        {!isCollapsed && (
+          <div className='absolute -top-5 -left-5'>
+            <img className="rounded-full" src={token_img_url}/>
+          </div>
+        )}
 
         {/* remove item btn */}
         <button className='absolute top-0 right-0 p-2 bg-transparent rounded-[30px] opacity-0 hover:opacity-100 transition-opacity duration-300'
         onClick={handleRemoveItem}
         >
-          <TrashIcon className='size-7 text-red-400'/>
+          <TrashIcon className='size-7 text-gray-200'/>
         </button>
 
         {/* collapsed content */}
         {isCollapsed ? (
-          <div className='flex flex-col items-center justify-content-center w-full h-full'>
-            <h5 className='text-1xl font-extrabold text-slate-900'>{token_name}</h5>
+          <div className='flex items-center justify-center w-full'>
+            <h5 className='text-1xl font-extrabold text-slate-900 text-center'>{token_name}</h5>
           </div>
         ) : (
-          <div>
-            <div className='flex items-right w-full mb-1'>
-              <img className="rounded-full" src={token_img_url}/>
-            </div>
-            <div className='flex flex-col mt-2'>
-              <h5 className="text-1xl font-extrabold text-slate-900 mb-4">{token_name}</h5>
-              <span className="text-1md text-gray-300 font-semibold -mt-4">{trade_count ?? 0}x traded</span> 
+          <div className='flex flex-col justify-center items-center'>
+            <h5 className="text-1xl font-extrabold text-slate-900 mb-4">{token_name}</h5>
+            <div className='text-3xl font-extrabold'>
+              {trade_count ?? 0}x <span className='text-lg font-semibold'></span> 
             </div>
           </div>
         )}
 
-        <button className='bg-transparent bottom-2 -mt-[3em]' onClick={handleCollapsed}>
-          <EllipsisHorizontalCircleIcon className='size-4 text-gray-400'/>
-        </button>
+        <div className='flex justify-center mt-1'>
+          <button className='bg-transparent bottom-2 mt-3' onClick={handleCollapsed}>
+            <EllipsisHorizontalIcon className='size-7 text-gray-400'/>
+          </button>
+        </div>
 
       </div>
     </div>
