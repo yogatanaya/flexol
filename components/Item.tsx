@@ -8,7 +8,7 @@ import { pre } from 'framer-motion/client';
 
 // Grid size (150px * 150px)
 const GRID_SIZE = 150;
-const ITEM_GAP = 6;
+const ITEM_GAP = 20;
 
 export interface ItemProps {
   id: string;
@@ -39,8 +39,6 @@ export const Item = ({
   discardItem,
   formType
   }: ItemProps) => {
-
-   const [ isCollapsed, setIsCollapsed ] = useState(false);
   
 
   // Use the useDraggable hook from dnd-kit to enable dragging
@@ -50,8 +48,8 @@ export const Item = ({
   // const centerY = useMemo(() => window.innerHeight / 2 - GRID_SIZE / 2, []);
 
   // Calculate the correct transformation by combining x, y, and current transform
-  let finalX = x + (transform?.x ?? 0) + (x > 0 ? ITEM_GAP : 0);
-  let finalY = y + (transform?.y ?? 0) + (y > 0 ? ITEM_GAP : 0);
+  let finalX = x * (GRID_SIZE + ITEM_GAP) + (transform?.x ?? 0);
+  let finalY = y * (GRID_SIZE + ITEM_GAP) + (transform?.y ?? 0);
   
   finalX = Math.max(finalX, 0);
   finalY = Math.max(finalY, 0);
@@ -60,7 +58,7 @@ export const Item = ({
   const style = { 
     position: 'absolute',
     width: GRID_SIZE,
-    height: isCollapsed ? GRID_SIZE /2 : GRID_SIZE,
+    height:GRID_SIZE,
     transform: CSS.Translate.toString({
       x: finalX,
       y: finalY,
@@ -116,12 +114,9 @@ export const Item = ({
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <div className='relative w-full h-full p-4 bg-white rounded-[30px]'>
 
-        {/* token image in left corner */}
-        {!isCollapsed && (
-          <div className='absolute -top-5 -left-5'>
-            <img className="rounded-full" src={token_img_url}/>
-          </div>
-        )}
+        <div className='absolute'>
+          <img className="rounded-full border border-brown-100" src={token_img_url} style={{ marginRight: '-24px'}}/>
+        </div>
 
         {/* remove item btn */}
         <button className='absolute top-0 right-0 p-2 bg-transparent rounded-[30px] opacity-0 hover:opacity-100 transition-opacity duration-300'
@@ -130,37 +125,32 @@ export const Item = ({
           <TrashIcon className='size-7 text-gray-200'/>
         </button>
 
-        {/* collapsed content */}
-        {isCollapsed ? (
-          <div className='flex items-center justify-center w-full'>
-            <h5 className='text-1xl font-extrabold text-slate-900 text-center'>{token_name}</h5>
+ 
+        <div className='flex flex-col justify-center items-center'>
+
+          <h5 className="text-1xl font-extrabold text-slate-900 mb-4 ms-[3em]">
+            {"$"+ (token_name ?? "")}
+          </h5>
+
+
+          <div className='flex items-center space-x-1 text-2xl font-extrabold text-gray-300'>
+            <span>{getFormattedCoeficient(value)}</span> x
+            <span className='text-1xl font-extrabold text-gray-300'>{getFormattedExponent(value)}</span>
           </div>
-        ) : (
-          <div className='flex flex-col justify-center items-center'>
 
-            <h5 className="text-1xl font-extrabold text-slate-900 mb-4">
-              {"$"+token_name}
-            </h5>
+          <label className='text-lg font-semibold text-black ms-12 mt-[0.11em]'>
+            {symbol}
+          </label>
 
-            <span className='text-1xl font-semibold text-slate-800 ms-[4em]'>{getFormattedExponent(value)}</span>
-
-            <div className='flex items-center space-x-1 text-4xl -ms-[1.5em] -mt-[0.5em] font-extrabold text-gray-400'>
-              <span>{getFormattedCoeficient(value)}</span>
-            </div>
-
+          {formType == "tc" ? (
             <label className='text-lg font-semibold text-black ms-12'>
-              {symbol}
+              
             </label>
-
-            {formType == "tc" ? (
-              <label className='text-lg font-semibold text-black ms-12'>
-                
-              </label>
-            ): null}
+          ): null}
 
 
-          </div>
-        )}
+        </div>
+      
 
       </div>
     </div>
