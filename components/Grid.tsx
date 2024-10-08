@@ -285,7 +285,7 @@ export const Grid = () => {
                   <button className='mx-1 text-white rounded-full bg-transparent p-2'>
                     <CheckBadgeIcon className='size-7'/>
                   </button>
-                  <button className='mx-1 text-gray-100 bg-transparent'>
+                  <button className='mx-1 text-gray-100 bg-transparent' onClick={() => handleFormOpened}>
                     <XCircleIcon className='size-7'/>
                   </button>
               </div>
