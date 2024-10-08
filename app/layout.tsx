@@ -14,7 +14,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "FlexOl - Your Portfolio Online Tracker",
+  title: "Flexol - Your Portfolio Online Tracker",
   description: "Your Portfolio Tracker",
 };
 
