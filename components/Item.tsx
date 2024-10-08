@@ -1,15 +1,15 @@
 // components/Item.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 
-import { MinusIcon, TrashIcon } from '@heroicons/react/16/solid';
+import { EllipsisHorizontalCircleIcon, EllipsisHorizontalIcon, MinusIcon, TrashIcon } from '@heroicons/react/16/solid';
 
 // Grid size (150px * 150px)
 const GRID_SIZE = 150;
 const ITEM_GAP = 6;
 
-interface ItemProps {
+export interface ItemProps {
   id: string;
   x: number;
   y: number;
@@ -20,15 +20,41 @@ interface ItemProps {
   discardItem: (id: string) => void;
 }
 
-export const Item = ({ id, x, y, token_name, token_address, trade_count, token_img_url, discardItem }: ItemProps) => {
-  // Use the useDraggable hook from dnd-kit to enable dragging
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-    id,
-  });
+export const Item = ({ 
+  id, 
+  x,
+  y, 
+  token_name, 
+  token_address, 
+  trade_count, 
+  token_img_url, 
+  discardItem 
+  }: ItemProps) => {
+
+    const [ isCollapsed, setIsCollapsed ] = useState(false);
+  
+    const handleCollapsed = (e: React.MouseEvent) => {
+      e.stopPropagation();
+
+      setIsCollapsed(!isCollapsed);
+    }
+
+    const handleRemoveItem = (e: React.MouseEvent) => {
+      e.stopPropagation();
+
+      discardItem(id);
+    }
+
+
+    // Use the useDraggable hook from dnd-kit to enable dragging
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id });
+  const centerX = window.innerWidth / 2 - GRID_SIZE/2;
+  const centerY = window.innerHeight /2 - GRID_SIZE/2;
 
   // Calculate the correct transformation by combining x, y, and current transform
-  let finalX = transform?.x ? x + transform.x : x;
-  let finalY = transform?.y ? y + transform.y : y;
+  let finalX = transform?.x ? x + centerX: x;
+  let finalY = transform?.y ? y + centerY : y;
+  
   finalX = finalX < 0 ? 0 : finalX;
   finalY = finalY < 0 ? 0 : finalY;
 
@@ -36,7 +62,7 @@ export const Item = ({ id, x, y, token_name, token_address, trade_count, token_i
   const style = { 
     position: 'absolute',
     width: GRID_SIZE - 10,
-    height: GRID_SIZE - 10,
+    height: isCollapsed ? (GRID_SIZE /2) - 10 : GRID_SIZE - 10,
     transform: CSS.Translate.toString({
       x: finalX + ITEM_GAP,
       y: finalY + ITEM_GAP,
@@ -49,27 +75,41 @@ export const Item = ({ id, x, y, token_name, token_address, trade_count, token_i
     cursor: 'grab',
     zIndex: isDragging ? 2 : 1, 
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.1)',
+    transition: 'height 0.3s ease'
   };
   
-  console.log(trade_count)
-
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      <div className='grid grid-rows-3 grid-flow-col'>
-       
-        <button className='absolute top-0 right-0 p-2 bg-white rounded-[30px]'
-        onClick={() => discardItem(id)}
+      <div className='relative w-full h-full p-2'>
+
+        {/* remove item btn */}
+        <button className='absolute top-0 right-0 p-2 bg-transparent rounded-[30px] opacity-0 hover:opacity-100 transition-opacity duration-300'
+        onClick={handleRemoveItem}
         >
-          <MinusIcon className='size-7 text-red-400'/>
+          <TrashIcon className='size-7 text-red-400'/>
         </button>
-        
-        <div className='flex items-left w-full mb-1'>
-          <img className="rounded-full" src={token_img_url}/>
-        </div>
-        <div className='flex flex-col mt-2'>
-          <h5 className="text-1xl font-extrabold text-slate-900 mb-4">{token_name ?? "Unknown."}</h5>
-          <span className="text-1md text-gray-300 font-semibold -mt-4">{trade_count ?? 0}x traded</span> 
-        </div>
+
+        {/* collapsed content */}
+        {isCollapsed ? (
+          <div className='flex flex-col items-center justify-content-center w-full h-full'>
+            <h5 className='text-1xl font-extrabold text-slate-900'>{token_name}</h5>
+          </div>
+        ) : (
+          <div>
+            <div className='flex items-right w-full mb-1'>
+              <img className="rounded-full" src={token_img_url}/>
+            </div>
+            <div className='flex flex-col mt-2'>
+              <h5 className="text-1xl font-extrabold text-slate-900 mb-4">{token_name}</h5>
+              <span className="text-1md text-gray-300 font-semibold -mt-4">{trade_count ?? 0}x traded</span> 
+            </div>
+          </div>
+        )}
+
+        <button className='bg-transparent bottom-2 -mt-[3em]' onClick={handleCollapsed}>
+          <EllipsisHorizontalCircleIcon className='size-4 text-gray-400'/>
+        </button>
+
       </div>
     </div>
   );
