@@ -1,12 +1,13 @@
 // components/Item.tsx
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 
 import { EllipsisHorizontalCircleIcon, EllipsisHorizontalIcon, MinusIcon, TrashIcon } from '@heroicons/react/16/solid';
+import { pre } from 'framer-motion/client';
 
 // Grid size (150px * 150px)
-const GRID_SIZE = 180;
+const GRID_SIZE = 150;
 const ITEM_GAP = 6;
 
 export interface ItemProps {
@@ -14,10 +15,14 @@ export interface ItemProps {
   x: number;
   y: number;
   token_name: string;
+  value: string;
   token_address: string;
-  trade_count: number;
   token_img_url: string;
+  symbol: string;
+  percentage: string;
+  indicator: string;
   discardItem: (id: string) => void;
+  formType: "watchlist" | "pnl" | "tc" | null;
 }
 
 export const Item = ({ 
@@ -25,47 +30,40 @@ export const Item = ({
   x,
   y, 
   token_name, 
+  symbol,
+  percentage,
+  indicator,
+  value,
   token_address, 
-  trade_count, 
   token_img_url, 
-  discardItem 
+  discardItem,
+  formType
   }: ItemProps) => {
 
-    const [ isCollapsed, setIsCollapsed ] = useState(false);
+   const [ isCollapsed, setIsCollapsed ] = useState(false);
   
-    const handleCollapsed = (e: React.MouseEvent) => {
-      e.stopPropagation();
 
-      setIsCollapsed(!isCollapsed);
-    }
-
-    const handleRemoveItem = (e: React.MouseEvent) => {
-      e.stopPropagation();
-
-      discardItem(id);
-    }
-
-
-    // Use the useDraggable hook from dnd-kit to enable dragging
+  // Use the useDraggable hook from dnd-kit to enable dragging
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id });
-  const centerX = window.innerWidth / 2 - GRID_SIZE/2;
-  const centerY = window.innerHeight /2 - GRID_SIZE/2;
+
+  // const centerX = useMemo(() => window.innerWidth / 2 - GRID_SIZE /2, []);
+  // const centerY = useMemo(() => window.innerHeight / 2 - GRID_SIZE / 2, []);
 
   // Calculate the correct transformation by combining x, y, and current transform
-  let finalX = transform?.x ? x + centerX: x;
-  let finalY = transform?.y ? y + centerY : y;
+  let finalX = x + (transform?.x ?? 0);
+  let finalY = y + (transform?.y ?? 0);
   
-  finalX = finalX < 0 ? 0 : finalX;
-  finalY = finalY < 0 ? 0 : finalY;
+  finalX = Math.max(finalX, 0);
+  finalY = Math.max(finalY, 0);
 
   // Style for each item
   const style = { 
     position: 'absolute',
-    width: GRID_SIZE - 10,
-    height: isCollapsed ? (GRID_SIZE /2) - 1 : GRID_SIZE - 1,
+    width: GRID_SIZE,
+    height: isCollapsed ? GRID_SIZE /2 : GRID_SIZE,
     transform: CSS.Translate.toString({
-      x: finalX + ITEM_GAP,
-      y: finalY + ITEM_GAP,
+      x: finalX,
+      y: finalY,
     }),
     backgroundColor: isDragging ? 'lightgrey' : 'white',
     display: 'flex',
@@ -75,7 +73,43 @@ export const Item = ({
     cursor: 'grab',
     zIndex: isDragging ? 2 : 1, 
     boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.1)',
-    transition: 'height 0.3s ease'
+    transition: isDragging ? 'none' : 'transform 0.3s ease'
+  };
+
+  const handleRemoveItem = (e: React.MouseEvent) => {
+    // e.stopPropagation();
+    discardItem(id);
+  }
+
+  const getFormattedCoeficient = (value: string) => {
+    const num = parseFloat(value);
+    const scientific = num.toExponential();
+    const [coeficient] = scientific.split("e");
+  
+    // Format the coefficient (2 decimal points, replace '.' with ',' and remove trailing zeros)
+    return parseFloat(coeficient).toFixed(2).replace('.', ',').replace(/0+$/, '');
+  }
+
+  const getFormattedExponent = (value: string): string => {
+    const num = parseFloat(value);
+    const scientific = num.toExponential();
+    const [, exponent] = scientific.split("e");
+  
+    // Format the exponent (return as superscript)
+    return `10${exponentToSuperscript(parseInt(exponent))}`;
+  };
+
+  const exponentToSuperscript = (exp: number): string => {
+    const superscriptMap: { [key: number]: string } = {
+      0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 
+      6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹", "-": "⁻"
+    };
+  
+    return exp
+      .toString()
+      .split("")
+      .map(char => superscriptMap[parseInt(char)] || superscriptMap[char])
+      .join("");
   };
   
   return (
@@ -103,18 +137,30 @@ export const Item = ({
           </div>
         ) : (
           <div className='flex flex-col justify-center items-center'>
-            <h5 className="text-1xl font-extrabold text-slate-900 mb-4">{token_name}</h5>
-            <div className='text-3xl font-extrabold'>
-              {trade_count ?? 0}x <span className='text-lg font-semibold'></span> 
+
+            <h5 className="text-1xl font-extrabold text-slate-900 mb-4">
+              {"$"+token_name}
+            </h5>
+
+            <span className='text-1xl font-semibold text-slate-800 ms-[4em]'>{getFormattedExponent(value)}</span>
+
+            <div className='flex items-center space-x-1 text-4xl -ms-[1.5em] -mt-[0.5em] font-extrabold text-gray-400'>
+              <span>{getFormattedCoeficient(value)}</span>
             </div>
+
+            <label className='text-lg font-semibold text-black ms-12'>
+              {symbol}
+            </label>
+
+            {formType == "tc" ? (
+              <label className='text-lg font-semibold text-black ms-12'>
+                
+              </label>
+            ): null}
+
+
           </div>
         )}
-
-        <div className='flex justify-center mt-1'>
-          <button className='bg-transparent bottom-2 mt-3' onClick={handleCollapsed}>
-            <EllipsisHorizontalIcon className='size-7 text-gray-400'/>
-          </button>
-        </div>
 
       </div>
     </div>
