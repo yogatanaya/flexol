@@ -108,7 +108,7 @@ export const Item = ({
     return exp
       .toString()
       .split("")
-      // .map(char => superscriptMap[parseInt(char)] || superscriptMap[char])
+      .map(char => superscriptMap[parseInt(char)] || superscriptMap[char])
       .join("");
   };
   
