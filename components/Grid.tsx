@@ -130,7 +130,7 @@ export const Grid = () => {
 
         let imgUrl = data.info.imageUrl;
 
-        let newItem = {
+        let newItem:ItemProps = {
           id: `Item-${itemId}`,
           x: currentX,
           y: currentY,
@@ -138,8 +138,14 @@ export const Grid = () => {
           symbol: symbol,
           token_name: tokenName,
           token_address: tokenAddress,
-          token_img_url: imgUrl
+          token_img_url: imgUrl,
+
+          indicator: '',
+          percentage: '',
+          formType: formType,
+          discardItem: () => {}
         }
+        
 
 
         setItems(prevItems => [...prevItems, newItem]);
@@ -158,9 +164,9 @@ export const Grid = () => {
   // Sensors for pointer input
   const sensors = [useSensor(PointerSensor)];
 
-  const roundToGrid = (value, gridSize) => Math.round(value / gridSize) * gridSize;
+  const roundToGrid = (value:any, gridSize:any) => Math.round(value / gridSize) * gridSize;
 
-  const handleDragEnd = (event) => {
+  const handleDragEnd = (event:any) => {
     const { active, delta } = event;
 
     // Find the currently dragged item
@@ -197,7 +203,7 @@ export const Grid = () => {
   
   // Check if any item occupies the given position
   
-  const isPositionOccupied = (x, y) => {
+  const isPositionOccupied = (x:any, y:any) => {
     // items.forEach((item) => {
     //   console.log(`Checking position: Item ID ${item.id}, X: ${item.x}, Y: ${item.y}`);
     // });
@@ -279,7 +285,7 @@ export const Grid = () => {
                   <button className='mx-1 text-white rounded-full bg-transparent p-2'>
                     <CheckBadgeIcon className='size-7'/>
                   </button>
-                  <button className='mx-1 text-gray-100 bg-transparent' onClick={handleFormOpened}>
+                  <button className='mx-1 text-gray-100 bg-transparent'>
                     <XCircleIcon className='size-7'/>
                   </button>
               </div>

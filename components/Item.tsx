@@ -56,12 +56,14 @@ export const Item = ({
 
   // Style for each item
   const style = { 
-    position: 'absolute',
+    position: "absolute",
     width: GRID_SIZE,
     height:GRID_SIZE,
     transform: CSS.Translate.toString({
       x: finalX,
       y: finalY,
+      scaleX: 1,
+      scaleY: 1
     }),
     backgroundColor: isDragging ? 'lightgrey' : 'white',
     display: 'flex',
@@ -100,18 +102,18 @@ export const Item = ({
   const exponentToSuperscript = (exp: number): string => {
     const superscriptMap: { [key: number]: string } = {
       0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 
-      6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹", "-": "⁻"
+      // 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹", "-": "⁻"
     };
   
     return exp
       .toString()
       .split("")
-      .map(char => superscriptMap[parseInt(char)] || superscriptMap[char])
+      // .map(char => superscriptMap[parseInt(char)] || superscriptMap[char])
       .join("");
   };
   
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div ref={setNodeRef} {...attributes} {...listeners}>
       <div className='relative w-full h-full p-4 bg-white rounded-[30px]'>
 
         <div className='absolute'>
