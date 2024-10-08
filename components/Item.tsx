@@ -12,6 +12,7 @@ const ITEM_GAP = 20;
 
 export interface ItemProps {
   id: string;
+  type: string;
   x: number;
   y: number;
   value: string;
@@ -22,6 +23,7 @@ export interface ItemProps {
 
 export const Item = ({ 
   id, 
+  type,
   x,
   y,
   symbol,
@@ -117,7 +119,7 @@ export const Item = ({
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="flex flex-col justify-center items-center">
       {/* Row: Image and Symbol ($ABC) */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-2">
         {/* Image Container */}
         <div className="flex-shrink-0">
           <img
@@ -134,9 +136,8 @@ export const Item = ({
         </h5>
       </div>
 
-      {/* Column: Value and Symbol */}
-      <div className="flex items-baseline space-x-4 mt-4">
-        {/* Coefficient part */}
+      {type === 'wl' && (
+      <div className="flex items-baseline space-x-1 mt-4">
         {getFormattedExponent(value) ? (
           <div className="flex items-start">
             <span className="text-2xl font-extrabold text-purple-700">
@@ -153,12 +154,36 @@ export const Item = ({
           </span>
         )}
 
-        {/* Aligned Token (SOL) */}
-        <label className="text-lg font-semibold text-black text-sm">
+        <label className="font-semibold text-black text-sm">
           SOL
         </label>
       </div>
+      )}
+
+      {type === 'tc' && (
+      <div className="flex items-baseline space-x-1 mt-4">
+        <span className="text-3xl font-extrabold text-purple-700">
+          {value}x
+        </span>
+        <label className="font-semibold text-black text-sm">
+          traded
+        </label>
+      </div>
+      )}
+
+      {type === 'pnl' && (
+      <div className="flex items-baseline space-x-1 mt-4">
+        <span className="text-3xl font-extrabold text-purple-700">
+          {value}%
+        </span>
+        <label className="font-semibold text-black text-sm">
+        {parseFloat(value) >= 0 ? 'profit' : 'loss'}
+        </label>
+      </div>
+      )}
+
     </div>
+      
   );
 };
 

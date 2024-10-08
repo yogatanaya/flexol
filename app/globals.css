@@ -39,7 +39,7 @@ body {
   display: grid !important;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)) !important;
   gap: 20px !important;
-  width: 920px !important;
+  width: 910px !important;
   grid-auto-rows: minmax(150px, auto) !important;
   margin: 0 auto !important;
   position: relative !important;

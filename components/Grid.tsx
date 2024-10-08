@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, } from 'react';
 import Image from 'next/image';
 import {
   DndContext,
@@ -18,8 +18,10 @@ import {
 } from '@heroicons/react/16/solid';
 
 import { Item, ItemProps } from './Item'; // Import the Item component
+import WalletProviderComponent from './Wallet';
 import Profile from './Profile';
 import axios from 'axios';
+
 
 // Grid size (150px * 150px)
 const GRID_SIZE = 150;
@@ -27,6 +29,7 @@ const GRID_SIZE = 150;
 const initialItems: ItemProps[] = [
   {
     id: '1',
+    type: 'wl',
     x: 0,
     y: 0,
     symbol: 'ABC',
@@ -34,12 +37,34 @@ const initialItems: ItemProps[] = [
     value: '0.00656',
     token_img_url: 'https://placehold.co/50x50',
   },
+  {
+    id: '2',
+    type: 'tc',
+    x: 150,
+    y: 0,
+    symbol: 'ABC',
+    token_address: '',
+    value: '7',
+    token_img_url: 'https://placehold.co/50x50',
+  },
+  {
+    id: '3',
+    type: 'pnl',
+    x: 150,
+    y: 150,
+    symbol: 'ABC',
+    token_address: '',
+    value: '77.5',
+    token_img_url: 'https://placehold.co/50x50',
+  },
 ];
 
 export const Grid = () => {
-  const [items, setItems] = useState<ItemProps[]>(initialItems); // Initialize with initialItems
-  const [itemId, setItemId] = useState(0); // Start itemId from the length of initialItems
+  const containerRef = useRef(null); 
+  const [items, setItems] = useState<ItemProps[]>(initialItems);
+  const [itemId, setItemId] = useState(initialItems.length);
   const [tokenAddress, setTokenAddress] = useState(''); 
+  const [type, setType] = useState('');
   const [formOpened, setFormOpened] = useState(false);// Initialize form type
   const [isClient, setIsClient] = useState(false); // Track client-side rendering
 
@@ -52,6 +77,7 @@ export const Grid = () => {
 
   const handleFormOpened = (type: string) => {
     setFormOpened((prevState) => !prevState);
+    setType(type);
   };
 
   const handleElementSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -60,7 +86,7 @@ export const Grid = () => {
     const apiUrl = 'https://api.dexscreener.com/latest/dex/search?q=';
 
     // Function to fetch data based on token address
-    const fetchData = async (trimmedTokenAddress: string) => {
+    const fetchData = async (trimmedTokenAddress: string, type: string) => {
       try {
         const res = await axios.get(`${apiUrl}${trimmedTokenAddress}`);
         const totalItems = items.length;
@@ -69,12 +95,28 @@ export const Grid = () => {
         const currentY = Math.floor(totalItems / itemsPerRow) * GRID_SIZE;
 
         const data = res.data.pairs[0];
-        const value = data.priceNative.toString();
         const symbol = data.quoteToken.symbol;
         const imgUrl = data.info.imageUrl;
 
+        let value;
+        switch (type) {
+          case 'wl':
+            value = data.priceNative.toString();
+            break;
+          case 'tc':
+            setType('LP');
+            break;
+          case 'pnl':
+            setType('Token');
+            break;
+          default:
+            setType('');
+            break;
+        }
+
         const newItem = {
           id: `${setItemId((prevItemId) => prevItemId + 1)}`,
+          type: type,
           x: currentX,
           y: currentY,
           value: value,
@@ -92,7 +134,7 @@ export const Grid = () => {
 
     const trimmedTokenAddress = tokenAddress.trim(); // Trim spaces from the input value
     if (trimmedTokenAddress) {
-      await fetchData(trimmedTokenAddress); // Pass the trimmed value to fetch data
+      await fetchData(trimmedTokenAddress, type); // Pass the trimmed value to fetch data
     }
   };
 
@@ -109,13 +151,17 @@ export const Grid = () => {
     const currentItem = items.find((item) => item.id === active.id);
 
     if (!currentItem) return;
+    // Get the width of the container
+    const containerWidth = containerRef.current.getBoundingClientRect().width;
+    const maxX = containerWidth - 150; // Assuming each item is 150px wide
+    
 
     let newX = roundToGrid(currentItem.x + delta.x, GRID_SIZE);
     let newY = roundToGrid(currentItem.y + delta.y, GRID_SIZE);
     console.log(`OLD : newX: ${newX}, newY: ${newY}`);
-    
 
     newX = newX < 0 ? 0 : newX;
+    newX = Math.min(Math.max(newX, 0), maxX);
     newY = newY < 0 ? 0 : newY;
     console.log(`newX: ${newX}, newY: ${newY}`);
     if (!isPositionOccupied(newX, newY)) {
@@ -148,10 +194,8 @@ export const Grid = () => {
         <>
           <div className='flex justify-between px-4 py-4 lg:justify-end sm:justify-center'>
             <div className='flex space-x-2'>
-              <button className='bg-slate-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 flex items-center'>
-                <WalletIcon className='size-5' />
-                &nbsp;&nbsp;Connect Wallet
-              </button>
+            <WalletProviderComponent>
+        </WalletProviderComponent>
             </div>
           </div>
 
@@ -162,11 +206,12 @@ export const Grid = () => {
           </div>
           <div >
             <DndContext sensors={sensors} collisionDetection={rectIntersection} onDragEnd={handleDragEnd}>
-              <div className='grid-container'>
+              <div className='grid-container' ref={containerRef}>
                  {/* Draggable Area */}
                  {items.map((item) => (
                     <Item
                       key={item.id}
+                      type={item.type}
                       id={item.id}
                       x={item.x}
                       y={item.y}
@@ -222,7 +267,7 @@ export const Grid = () => {
                     <div className='relative group'>
                       <button
                         className='bg-white p-2 rounded-full mx-1 text-slate-900'
-                        onClick={() => handleFormOpened('watchlist')}
+                        onClick={() => handleFormOpened('wl')}
                       >
                         <PresentationChartLineIcon className='size-5' />
                       </button>
@@ -251,7 +296,7 @@ export const Grid = () => {
                         <CurrencyDollarIcon className='size-5' />
                       </button>
                       <span className='absolute bottom-full mb-2 w-max bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
-                        Transaction Count
+                        Trade Count
                       </span>
                     </div>
 
