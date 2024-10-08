@@ -50,8 +50,8 @@ export const Item = ({
   // const centerY = useMemo(() => window.innerHeight / 2 - GRID_SIZE / 2, []);
 
   // Calculate the correct transformation by combining x, y, and current transform
-  let finalX = x + (transform?.x ?? 0);
-  let finalY = y + (transform?.y ?? 0);
+  let finalX = x + (transform?.x ?? 0) + (x > 0 ? ITEM_GAP : 0);
+  let finalY = y + (transform?.y ?? 0) + (y > 0 ? ITEM_GAP : 0);
   
   finalX = Math.max(finalX, 0);
   finalY = Math.max(finalY, 0);
