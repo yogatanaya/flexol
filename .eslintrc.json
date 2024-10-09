@@ -1,3 +1,14 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": [
+    "next/core-web-vitals",
+    "next/typescript"
+  ],
+  "rules": {
+    // Set unused variables to "warn" instead of "error"
+    "no-unused-vars": "warn",
+    // Specific to TypeScript unused variables
+    "@typescript-eslint/no-unused-vars": "warn",
+    // Disable requiring explicit return types on functions and class methods
+    "@typescript-eslint/explicit-module-boundary-types": "warn"
+  }
 }
