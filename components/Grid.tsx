@@ -186,10 +186,12 @@ export const Grid = () => {
   
   const handleElementSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-console.log(publicKey);
+  
+    const base58PublicKey = publicKey ? publicKey.toBase58() : "";
+
     const trimmedTokenAddress = tokenAddress.trim(); // Trim spaces from the input value
     if (trimmedTokenAddress) {
-      await fetchData(trimmedTokenAddress, type, publicKey?.toBase58()); // Pass the trimmed value to fetch data
+      await fetchData(trimmedTokenAddress, type, base58PublicKey); // Pass the trimmed value to fetch data
     }
   };
 
