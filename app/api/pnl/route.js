@@ -1,18 +1,18 @@
 import { NextResponse } from 'next/server';
 import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 
-const connection = new Connection(process.env.SOLANA_RPC_URL);
+const connection = new Connection(process.env.SOLANA_RPC_URL, "confirmed");
 
 export async function POST(request) {
-    const { walletAddress, tokenMint } = await request.json();
-
+    const { walletAddress2, tokenMint2 } = await request.json();
+    console.log("A");
     try {
         // Convert to PublicKey instances
-        const ownerAccount = new PublicKey(walletAddress);
-        const myToken = new PublicKey(tokenMint);
-
+        const ownerAccount = new PublicKey(walletAddress2);
+        const myToken = new PublicKey(tokenMint2);
+        console.log(ownerAccount, myToken);
         const pnlPercentage = await calculateProfit(ownerAccount, myToken);
-
+        console.log(pnlPercentage);
         return NextResponse.json({ pnlPercentage });
     } catch (error) {
         console.error('Error calculating profit:', error);
@@ -68,6 +68,7 @@ async function calculateProfit(ownerAccount, myToken) {
 
             chunkHasToken = true;
             solNetProfit += accountData.nativeBalanceChange / LAMPORTS_PER_SOL; // Convert to SOL
+            console.log(`Profit for ${txn.transactionHash}: ${solNetProfit} SOL`);
         }
 
         // If no more token-related transactions and profit is non-zero, return the net profit

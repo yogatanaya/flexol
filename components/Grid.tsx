@@ -69,18 +69,28 @@ const initialItems: ItemProps[] = [
 export const Grid = () => {
   const containerRef = useRef(null); 
   const [items, setItems] = useState<ItemProps[]>(initialItems);
-  const [itemId, setItemId] = useState(initialItems.length);
+  const [itemId, setItemId] = useState(initialItems.length + 1);
   const [tokenAddress, setTokenAddress] = useState(''); 
   const [type, setType] = useState('');
   const [formOpened, setFormOpened] = useState(false);// Initialize form type
   const [isClient, setIsClient] = useState(false); // Track client-side rendering
+  const { publicKey } = useWallet();
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
   // Ensuring client-side rendering to avoid hydration issues
   useEffect(() => {
     setIsClient(true); // Only true after the client has mounted
   }, []);
 
- 
+ useEffect(() => {
+    // Update the wallet address state when publicKey changes
+    if (publicKey) {
+      setWalletAddress(publicKey.toBase58());
+      console.log(`Wallet address: ${publicKey.toBase58()}`);
+    } else {
+      setWalletAddress(null); // Set to null if no wallet is connected
+    }
+  }, [publicKey]);
 
   const handleFormOpened = (type: string) => {
     setFormOpened((prevState) => !prevState);
@@ -116,6 +126,7 @@ export const Grid = () => {
   };
 
   const fetchData = async (trimmedTokenAddress: string, type: string, ownerAddress: string) => {
+    console.log(`Owner address: ${ownerAddress}`);
     try {
       const apiUrl = 'https://api.dexscreener.com/latest/dex/search?q=';
       const res = await axios.get(`${apiUrl}${trimmedTokenAddress}`);
@@ -162,11 +173,11 @@ export const Grid = () => {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                walletAddress: ownerAddress,
-                tokenMint: trimmedTokenAddress,
+                walletAddress2: ownerAddress,
+                tokenMint2: trimmedTokenAddress,
               }),
             });
-      
+      console.log(response)
             if (!response.ok) {
               throw new Error("Error getting pnl");
             }
@@ -182,8 +193,9 @@ export const Grid = () => {
           break;
       }
       const { x, y } = findAvailablePosition();
+      
       const newItem = {
-        id: `${setItemId((prevItemId) => prevItemId + 1)}`,
+        id: `${itemId}`,
         type: type,
         x: x,
         y: y,
@@ -200,12 +212,10 @@ export const Grid = () => {
     }
   };
 
-  const { publicKey } = useWallet();
+  
   const handleElementSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    
-
+console.log(publicKey);
     const trimmedTokenAddress = tokenAddress.trim(); // Trim spaces from the input value
     if (trimmedTokenAddress) {
       await fetchData(trimmedTokenAddress, type, publicKey?.toBase58()); // Pass the trimmed value to fetch data
