@@ -27,6 +27,7 @@ import { Item, ItemProps } from './Item'; // Import the Item component
 import WalletProviderComponent from './Wallet';
 import Profile from './Profile';
 import axios from 'axios';
+import { strict } from 'assert';
 
 
 // Grid size (150px * 150px)
@@ -90,9 +91,11 @@ export const Grid = () => {
     event.preventDefault();
 
     const apiUrl = 'https://api.dexscreener.com/latest/dex/search?q=';
+    const { connection } = useConnection();
+  const { publicKey } = useWallet();
 
     // Function to fetch data based on token address
-    const fetchData = async (trimmedTokenAddress: string, type: string) => {
+    const fetchData = async (trimmedTokenAddress: string, type: string, ownerAddress: string) => {
       try {
         const res = await axios.get(`${apiUrl}${trimmedTokenAddress}`);
         const totalItems = items.length;
@@ -140,7 +143,7 @@ export const Grid = () => {
 
     const trimmedTokenAddress = tokenAddress.trim(); // Trim spaces from the input value
     if (trimmedTokenAddress) {
-      await fetchData(trimmedTokenAddress, type); // Pass the trimmed value to fetch data
+      await fetchData(trimmedTokenAddress, type, publicKey?.toBase58()); // Pass the trimmed value to fetch data
     }
   };
 
@@ -193,8 +196,7 @@ export const Grid = () => {
   const isPositionOccupied = (x: number, y: number) => {
     return items.some((item) => item.x === x && item.y === y);
   };
-  const { connection } = useConnection();
-  const { publicKey } = useWallet();
+  
 
   return (
     <div>
