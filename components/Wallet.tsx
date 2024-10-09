@@ -22,7 +22,7 @@ const WalletProviderComponent: FC<WalletProviderProps>= ({ children }) => {
     const network = WalletAdapterNetwork.Devnet;
 
     // You can add more wallet adapters here if needed
-    const wallets = useMemo(() => [new UnsafeBurnerWalletAdapter(), new PhantomWalletAdapter(), new SolflareWalletAdapter(), new TorusWalletAdapter()], [network]);
+    const wallets = useMemo(() => [ new PhantomWalletAdapter(), new SolflareWalletAdapter(), new TorusWalletAdapter()], [network]);
 
     return (
         <>

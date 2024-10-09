@@ -27,120 +27,169 @@ import { Item, ItemProps } from './Item'; // Import the Item component
 import WalletProviderComponent from './Wallet';
 import Profile from './Profile';
 import axios from 'axios';
+import { strict } from 'assert';
 
 
 // Grid size (150px * 150px)
 const GRID_SIZE = 150;
 
 const initialItems: ItemProps[] = [
-  {
-    id: '1',
-    type: 'wl',
-    x: 0,
-    y: 0,
-    symbol: 'ABC',
-    token_address: '',
-    value: '0.00656',
-    token_img_url: 'https://placehold.co/50x50',
-  },
-  {
-    id: '2',
-    type: 'tc',
-    x: 150,
-    y: 0,
-    symbol: 'ABC',
-    token_address: '',
-    value: '7',
-    token_img_url: 'https://placehold.co/50x50',
-  },
-  {
-    id: '3',
-    type: 'pnl',
-    x: 150,
-    y: 150,
-    symbol: 'ABC',
-    token_address: '',
-    value: '77.5',
-    token_img_url: 'https://placehold.co/50x50',
-  },
+  
 ];
 
 export const Grid = () => {
   const containerRef = useRef<HTMLDivElement | null>(null); 
   const [items, setItems] = useState<ItemProps[]>(initialItems);
-  const [itemId, setItemId] = useState(initialItems.length);
+  const [itemId, setItemId] = useState(initialItems.length + 1);
   const [tokenAddress, setTokenAddress] = useState(''); 
   const [type, setType] = useState('');
   const [formOpened, setFormOpened] = useState(false);// Initialize form type
   const [isClient, setIsClient] = useState(false); // Track client-side rendering
+  const { publicKey } = useWallet();
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
 
   // Ensuring client-side rendering to avoid hydration issues
   useEffect(() => {
     setIsClient(true); // Only true after the client has mounted
   }, []);
 
- 
+ useEffect(() => {
+    // Update the wallet address state when publicKey changes
+    if (publicKey) {
+      setWalletAddress(publicKey.toBase58());
+      console.log(`Wallet address: ${publicKey.toBase58()}`);
+    } else {
+      setWalletAddress(null); // Set to null if no wallet is connected
+    }
+  }, [publicKey]);
 
   const handleFormOpened = (type: string) => {
     setFormOpened((prevState) => !prevState);
     setType(type);
   };
 
+  const findAvailablePosition = () => {
+    // Create a 2D array to represent the grid's occupied state
+    const occupiedPositions = new Set();
+  
+    // Mark the grid cells that are occupied
+    items.forEach((item) => {
+      const gridX = Math.floor(item.x / GRID_SIZE);
+      const gridY = Math.floor(item.y / GRID_SIZE);
+      occupiedPositions.add(`${gridX}-${gridY}`);
+    });
+  
+    // Now, find the first available position
+    for (let row = 0; row < 10; row++) { // assuming a max of 100 rows
+      for (let col = 0; col < 6; col++) { // max 6 items per row
+        const x = col * GRID_SIZE;
+        const y = row * GRID_SIZE;
+  
+        // If this position is not occupied, return it
+        if (!occupiedPositions.has(`${col}-${row}`)) {
+          return { x, y };
+        }
+      }
+    }
+  
+    // Default return if somehow no available space is found
+    return { x: 0, y: 0 };
+  };
+
+  const fetchData = async (trimmedTokenAddress: string, type: string, ownerAddress: string) => {
+    console.log(`Owner address: ${ownerAddress}`);
+    try {
+      const apiUrl = 'https://api.dexscreener.com/latest/dex/search?q=';
+      const res = await axios.get(`${apiUrl}${trimmedTokenAddress}`);
+     
+      const data = res.data.pairs[0];
+      const symbol = data.quoteToken.symbol;
+      const imgUrl = data.info.imageUrl;
+
+      let value;
+      switch (type) {
+        case 'wl':
+          value = data.priceNative.toString();
+          break;
+        case 'tc':
+          try {
+            // Call the API to generate the hash
+            const response = await fetch("/api/tradecount", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                walletAddress: ownerAddress,
+                tokenMint: trimmedTokenAddress,
+              }),
+            });
+      
+            if (!response.ok) {
+              throw new Error("Error getting trade count");
+            }
+      
+            const { tradeCount } = await response.json();
+            value = tradeCount.toString();
+          } catch (error) {
+            console.error("Error getting trade count:", error);
+          }
+          break;
+        case 'pnl':
+          try {
+            // Call the API to generate the hash
+            const response = await fetch("/api/pnl", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                walletAddress2: ownerAddress,
+                tokenMint2: trimmedTokenAddress,
+              }),
+            });
+      console.log(response)
+            if (!response.ok) {
+              throw new Error("Error getting pnl");
+            }
+      
+            const { pnlPercentage } = await response.json();
+            value = pnlPercentage.toString();
+          } catch (error) {
+            console.error("Error getting pnl:", error);
+          }
+          break;
+        default:
+          setType('');
+          break;
+      }
+      const { x, y } = findAvailablePosition();
+      
+      const newItem = {
+        id: `${itemId}`,
+        type: type,
+        x: x,
+        y: y,
+        value: value,
+        symbol: symbol,
+        token_address: trimmedTokenAddress,
+        token_img_url: imgUrl,
+      };
+
+      setItems((prevItems) => [...prevItems, newItem]);
+      setItemId((prevItemId) => prevItemId + 1);
+    } catch (err: any) {
+      console.error(err.message);
+    }
+  };
+
+  
   const handleElementSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    const apiUrl = 'https://api.dexscreener.com/latest/dex/search?q=';
-
-    // Function to fetch data based on token address
-    const fetchData = async (trimmedTokenAddress: string, type: string) => {
-      try {
-        const res = await axios.get(`${apiUrl}${trimmedTokenAddress}`);
-        const totalItems = items.length;
-        const itemsPerRow = 6;
-        const currentX = (totalItems % itemsPerRow) * GRID_SIZE;
-        const currentY = Math.floor(totalItems / itemsPerRow) * GRID_SIZE;
-
-        const data = res.data.pairs[0];
-        const symbol = data.quoteToken.symbol;
-        const imgUrl = data.info.imageUrl;
-
-        let value;
-        switch (type) {
-          case 'wl':
-            value = data.priceNative.toString();
-            break;
-          case 'tc':
-            setType('LP');
-            break;
-          case 'pnl':
-            setType('Token');
-            break;
-          default:
-            setType('');
-            break;
-        }
-
-        const newItem = {
-          id: `${setItemId((prevItemId) => prevItemId + 1)}`,
-          type: type,
-          x: currentX,
-          y: currentY,
-          value: value,
-          symbol: symbol,
-          token_address: trimmedTokenAddress,
-          token_img_url: imgUrl,
-        };
-
-        setItems((prevItems) => [...prevItems, newItem]);
-        setItemId((prevItemId) => prevItemId + 1);
-      } catch (err: any) {
-        console.error(err.message);
-      }
-    };
-
+console.log(publicKey);
     const trimmedTokenAddress = tokenAddress.trim(); // Trim spaces from the input value
     if (trimmedTokenAddress) {
-      await fetchData(trimmedTokenAddress, type); // Pass the trimmed value to fetch data
+      await fetchData(trimmedTokenAddress, type, publicKey?.toBase58()); // Pass the trimmed value to fetch data
     }
   };
 
@@ -199,8 +248,7 @@ export const Grid = () => {
   const isPositionOccupied = (x: number, y: number) => {
     return items.some((item) => item.x === x && item.y === y);
   };
-  const { connection } = useConnection();
-  const { publicKey } = useWallet();
+  
 
   return (
     <div>
@@ -249,15 +297,18 @@ export const Grid = () => {
                         type='text'
                         placeholder='Token address'
                         autoFocus={true}
+                        value={tokenAddress}
+                        onChange={(e) => setTokenAddress(e.target.value)}
                         className='text-1xl font-medium py-2 px-2 border-1 bg-white border-white bg-transparent focus:outline-none text-slate-800 rounded-full w-full'
                       />
 
-                      <button className='mx-1 text-white rounded-full bg-transparent p-2'>
+                      <button className='mx-1 text-white rounded-full bg-transparent p-2'
+                      onClick={() =>handleElementSubmit}>
                         <CheckBadgeIcon className='size-7' />
                       </button>
                       <button
                         className='mx-1 text-gray-100 bg-transparent'
-                        onClick={() => handleFormOpened('')}
+                        onClick={ () =>setFormOpened(false)}
                       >
                         <XCircleIcon className='size-7' />
                       </button>
