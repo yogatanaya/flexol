@@ -34,36 +34,7 @@ import { strict } from 'assert';
 const GRID_SIZE = 150;
 
 const initialItems: ItemProps[] = [
-  {
-    id: '1',
-    type: 'wl',
-    x: 0,
-    y: 0,
-    symbol: 'ABC',
-    token_address: '',
-    value: '0.00656',
-    token_img_url: 'https://dd.dexscreener.com/ds-data/tokens/solana/3B5wuUrMEi5yATD7on46hKfej3pfmd7t1RKgrsN3pump.png',
-  },
-  {
-    id: '2',
-    type: 'tc',
-    x: 150,
-    y: 0,
-    symbol: 'ABC',
-    token_address: '',
-    value: '7',
-    token_img_url: 'https://dd.dexscreener.com/ds-data/tokens/solana/3B5wuUrMEi5yATD7on46hKfej3pfmd7t1RKgrsN3pump.png',
-  },
-  {
-    id: '3',
-    type: 'pnl',
-    x: 150,
-    y: 150,
-    symbol: 'ABC',
-    token_address: '',
-    value: '77.5',
-    token_img_url: 'https://dd.dexscreener.com/ds-data/tokens/solana/3B5wuUrMEi5yATD7on46hKfej3pfmd7t1RKgrsN3pump.png',
-  },
+  
 ];
 
 export const Grid = () => {
