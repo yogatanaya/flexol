@@ -1,4 +1,10 @@
 import React, { useEffect, useState, useRef, } from 'react';
+import {
+  WalletModalProvider,
+  WalletDisconnectButton,
+  WalletMultiButton,
+} from '@solana/wallet-adapter-react-ui';
+import { useConnection, useWallet } from '@solana/wallet-adapter-react';
 import Image from 'next/image';
 import {
   DndContext,
@@ -187,6 +193,8 @@ export const Grid = () => {
   const isPositionOccupied = (x: number, y: number) => {
     return items.some((item) => item.x === x && item.y === y);
   };
+  const { connection } = useConnection();
+  const { publicKey } = useWallet();
 
   return (
     <div>
@@ -194,11 +202,9 @@ export const Grid = () => {
         <>
           <div className='flex justify-between px-4 py-4 lg:justify-end sm:justify-center'>
             <div className='flex space-x-2'>
-            <WalletProviderComponent>
-        </WalletProviderComponent>
+            <WalletMultiButton />
             </div>
           </div>
-
           <div className='flex flex-col justify-center items-center w-full py-2'>
             <div className='flex justify-center items-center w-[90vw] max-w-[90vw]'>
               <Profile />
