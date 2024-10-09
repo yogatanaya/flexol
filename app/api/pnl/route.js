@@ -4,14 +4,14 @@ import { Connection, PublicKey, LAMPORTS_PER_SOL } from '@solana/web3.js';
 const connection = new Connection(process.env.SOLANA_RPC_URL);
 
 export async function POST(request) {
-    const { ownerAccount, tokenMint } = await request.json();
+    const { walletAddress, tokenMint } = await request.json();
 
     try {
         // Convert to PublicKey instances
-        const walletAddress = new PublicKey(ownerAccount);
+        const ownerAccount = new PublicKey(walletAddress);
         const myToken = new PublicKey(tokenMint);
 
-        const pnlPercentage = await calculatePumpFunProfit(walletAddress, myToken);
+        const pnlPercentage = await calculateProfit(ownerAccount, myToken);
 
         return NextResponse.json({ pnlPercentage });
     } catch (error) {
@@ -20,15 +20,15 @@ export async function POST(request) {
     }
 }
 
-async function calculatePumpFunProfit(walletAddress, myToken) {
+async function calculateProfit(ownerAccount, myToken) {
     let solNetProfit = 0;
     let lastTxn = undefined;
 
     // Get initial SOL balance before any token-related transactions
-    const initialSOLBalance = await connection.getBalance(walletAddress) / LAMPORTS_PER_SOL;
+    const initialSOLBalance = await connection.getBalance(ownerAccount) / LAMPORTS_PER_SOL;
 
     // Fetch transaction signatures for the given wallet address
-    const sigs = await connection.getSignaturesForAddress(walletAddress, { limit: 500, before: lastTxn });
+    const sigs = await connection.getSignaturesForAddress(ownerAccount, { limit: 500, before: lastTxn });
     lastTxn = sigs[sigs.length - 1]?.signature;
 
     // Chunk signatures for efficient processing
@@ -63,7 +63,7 @@ async function calculatePumpFunProfit(walletAddress, myToken) {
             );
             if (!containsToken) continue;
 
-            const accountData = txn.accountData.find(ad => ad.account == walletAddress.toString());
+            const accountData = txn.accountData.find(ad => ad.account == ownerAccount.toString());
             if (!accountData) continue;
 
             chunkHasToken = true;

@@ -42,7 +42,7 @@ const initialItems: ItemProps[] = [
     symbol: 'ABC',
     token_address: '',
     value: '0.00656',
-    token_img_url: 'https://placehold.co/50x50',
+    token_img_url: 'https://dd.dexscreener.com/ds-data/tokens/solana/3B5wuUrMEi5yATD7on46hKfej3pfmd7t1RKgrsN3pump.png',
   },
   {
     id: '2',
@@ -52,7 +52,7 @@ const initialItems: ItemProps[] = [
     symbol: 'ABC',
     token_address: '',
     value: '7',
-    token_img_url: 'https://placehold.co/50x50',
+    token_img_url: 'https://dd.dexscreener.com/ds-data/tokens/solana/3B5wuUrMEi5yATD7on46hKfej3pfmd7t1RKgrsN3pump.png',
   },
   {
     id: '3',
@@ -62,7 +62,7 @@ const initialItems: ItemProps[] = [
     symbol: 'ABC',
     token_address: '',
     value: '77.5',
-    token_img_url: 'https://placehold.co/50x50',
+    token_img_url: 'https://dd.dexscreener.com/ds-data/tokens/solana/3B5wuUrMEi5yATD7on46hKfej3pfmd7t1RKgrsN3pump.png',
   },
 ];
 
@@ -87,59 +87,124 @@ export const Grid = () => {
     setType(type);
   };
 
+  const findAvailablePosition = () => {
+    // Create a 2D array to represent the grid's occupied state
+    const occupiedPositions = new Set();
+  
+    // Mark the grid cells that are occupied
+    items.forEach((item) => {
+      const gridX = Math.floor(item.x / GRID_SIZE);
+      const gridY = Math.floor(item.y / GRID_SIZE);
+      occupiedPositions.add(`${gridX}-${gridY}`);
+    });
+  
+    // Now, find the first available position
+    for (let row = 0; row < 10; row++) { // assuming a max of 100 rows
+      for (let col = 0; col < 6; col++) { // max 6 items per row
+        const x = col * GRID_SIZE;
+        const y = row * GRID_SIZE;
+  
+        // If this position is not occupied, return it
+        if (!occupiedPositions.has(`${col}-${row}`)) {
+          return { x, y };
+        }
+      }
+    }
+  
+    // Default return if somehow no available space is found
+    return { x: 0, y: 0 };
+  };
+
+  const fetchData = async (trimmedTokenAddress: string, type: string, ownerAddress: string) => {
+    try {
+      const apiUrl = 'https://api.dexscreener.com/latest/dex/search?q=';
+      const res = await axios.get(`${apiUrl}${trimmedTokenAddress}`);
+     
+      const data = res.data.pairs[0];
+      const symbol = data.quoteToken.symbol;
+      const imgUrl = data.info.imageUrl;
+
+      let value;
+      switch (type) {
+        case 'wl':
+          value = data.priceNative.toString();
+          break;
+        case 'tc':
+          try {
+            // Call the API to generate the hash
+            const response = await fetch("/api/tradecount", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                walletAddress: ownerAddress,
+                tokenMint: trimmedTokenAddress,
+              }),
+            });
+      
+            if (!response.ok) {
+              throw new Error("Error getting trade count");
+            }
+      
+            const { tradeCount } = await response.json();
+            value = tradeCount.toString();
+          } catch (error) {
+            console.error("Error getting trade count:", error);
+          }
+          break;
+        case 'pnl':
+          try {
+            // Call the API to generate the hash
+            const response = await fetch("/api/pnl", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                walletAddress: ownerAddress,
+                tokenMint: trimmedTokenAddress,
+              }),
+            });
+      
+            if (!response.ok) {
+              throw new Error("Error getting pnl");
+            }
+      
+            const { pnlPercentage } = await response.json();
+            value = pnlPercentage.toString();
+          } catch (error) {
+            console.error("Error getting pnl:", error);
+          }
+          break;
+        default:
+          setType('');
+          break;
+      }
+      const { x, y } = findAvailablePosition();
+      const newItem = {
+        id: `${setItemId((prevItemId) => prevItemId + 1)}`,
+        type: type,
+        x: x,
+        y: y,
+        value: value,
+        symbol: symbol,
+        token_address: trimmedTokenAddress,
+        token_img_url: imgUrl,
+      };
+
+      setItems((prevItems) => [...prevItems, newItem]);
+      setItemId((prevItemId) => prevItemId + 1);
+    } catch (err) {
+      console.error(err.message);
+    }
+  };
+
+  const { publicKey } = useWallet();
   const handleElementSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const apiUrl = 'https://api.dexscreener.com/latest/dex/search?q=';
-    const { connection } = useConnection();
-  const { publicKey } = useWallet();
-
-    // Function to fetch data based on token address
-    const fetchData = async (trimmedTokenAddress: string, type: string, ownerAddress: string) => {
-      try {
-        const res = await axios.get(`${apiUrl}${trimmedTokenAddress}`);
-        const totalItems = items.length;
-        const itemsPerRow = 6;
-        const currentX = (totalItems % itemsPerRow) * GRID_SIZE;
-        const currentY = Math.floor(totalItems / itemsPerRow) * GRID_SIZE;
-
-        const data = res.data.pairs[0];
-        const symbol = data.quoteToken.symbol;
-        const imgUrl = data.info.imageUrl;
-
-        let value;
-        switch (type) {
-          case 'wl':
-            value = data.priceNative.toString();
-            break;
-          case 'tc':
-            setType('LP');
-            break;
-          case 'pnl':
-            setType('Token');
-            break;
-          default:
-            setType('');
-            break;
-        }
-
-        const newItem = {
-          id: `${setItemId((prevItemId) => prevItemId + 1)}`,
-          type: type,
-          x: currentX,
-          y: currentY,
-          value: value,
-          symbol: symbol,
-          token_address: trimmedTokenAddress,
-          token_img_url: imgUrl,
-        };
-
-        setItems((prevItems) => [...prevItems, newItem]);
-        setItemId((prevItemId) => prevItemId + 1);
-      } catch (err) {
-        console.error(err.message);
-      }
-    };
+    
 
     const trimmedTokenAddress = tokenAddress.trim(); // Trim spaces from the input value
     if (trimmedTokenAddress) {
@@ -245,15 +310,18 @@ export const Grid = () => {
                         type='text'
                         placeholder='Token address'
                         autoFocus={true}
+                        value={tokenAddress}
+                        onChange={(e) => setTokenAddress(e.target.value)}
                         className='text-1xl font-medium py-2 px-2 border-1 bg-white border-white bg-transparent focus:outline-none text-slate-800 rounded-full w-full'
                       />
 
-                      <button className='mx-1 text-white rounded-full bg-transparent p-2'>
+                      <button className='mx-1 text-white rounded-full bg-transparent p-2'
+                      onClick={() =>handleElementSubmit}>
                         <CheckBadgeIcon className='size-7' />
                       </button>
                       <button
                         className='mx-1 text-gray-100 bg-transparent'
-                        onClick={() => handleFormOpened('')}
+                        onClick={ () =>setFormOpened(false)}
                       >
                         <XCircleIcon className='size-7' />
                       </button>
