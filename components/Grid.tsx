@@ -66,7 +66,7 @@ const initialItems: ItemProps[] = [
 ];
 
 export const Grid = () => {
-  const containerRef = useRef(null); 
+  const containerRef = useRef<HTMLDivElement | null>(null); 
   const [items, setItems] = useState<ItemProps[]>(initialItems);
   const [itemId, setItemId] = useState(initialItems.length);
   const [tokenAddress, setTokenAddress] = useState(''); 
@@ -158,9 +158,15 @@ export const Grid = () => {
 
     if (!currentItem) return;
     // Get the width of the container
-    const containerWidth = containerRef.current.getBoundingClientRect().width;
-    const maxX = containerWidth - 150; // Assuming each item is 150px wide
-    
+
+    let maxX = 0;
+
+    if (containerRef.current) 
+    {
+      const containerWidth = containerRef.current.getBoundingClientRect().width;
+      maxX = containerWidth - 150; // Assuming each item is 150px wide
+    }
+
 
     let newX = roundToGrid(currentItem.x + delta.x, GRID_SIZE);
     let newY = roundToGrid(currentItem.y + delta.y, GRID_SIZE);

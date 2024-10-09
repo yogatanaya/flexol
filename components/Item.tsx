@@ -47,12 +47,14 @@ export const Item = ({
   
   // Style for each item
   const style = { 
-    position: 'absolute',
+    position: 'absolute' as 'absolute',
     width: GRID_SIZE - 10,
     height: GRID_SIZE - 10,
     transform: CSS.Translate.toString({
       x: finalX + ITEM_GAP,
       y: finalY + ITEM_GAP,
+      scaleX: 1,
+      scaleY: 1
     }),
     backgroundColor: isDragging ? 'lightgrey' : 'white',
     display: 'flex',

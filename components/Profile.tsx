@@ -7,12 +7,12 @@ export const Profile = () => {
     const [caption, setCaption] = useState('');
 
     // Function to handle title change
-    const handleTitleChange = (e) => {
+    const handleTitleChange = (e:any) => {
         setTitle(e.target.value); // Update the state for title
     };
 
     // Function to handle caption change
-    const handleCaptionChange = (e) => {
+    const handleCaptionChange = (e:any) => {
         setCaption(e.target.value); // Update the state for caption
     };
 
