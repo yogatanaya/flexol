@@ -133,7 +133,7 @@ export const Grid = () => {
 
         setItems((prevItems) => [...prevItems, newItem]);
         setItemId((prevItemId) => prevItemId + 1);
-      } catch (err) {
+      } catch (err: any) {
         console.error(err.message);
       }
     };
