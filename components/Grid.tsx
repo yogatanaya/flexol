@@ -101,8 +101,14 @@ export const Grid = () => {
     try {
       const apiUrl = 'https://api.dexscreener.com/latest/dex/search?q=';
       const res = await axios.get(`${apiUrl}${trimmedTokenAddress}`);
-     
+   
+      if (res.data.pairs.length == 0) 
+      {
+        alert(`Sorry! you're current wallet is empty `)
+      }
+
       const data = res.data.pairs[0];
+
       const symbol = data.quoteToken.symbol;
       const imgUrl = data.info.imageUrl;
 
@@ -131,6 +137,7 @@ export const Grid = () => {
       
             const { tradeCount } = await response.json();
             value = tradeCount.toString();
+
           } catch (error) {
             console.error("Error getting trade count:", error);
           }
@@ -211,7 +218,8 @@ export const Grid = () => {
   
     const base58PublicKey = publicKey ? publicKey.toBase58() : "";
 
-    const trimmedTokenAddress = tokenAddress.trim(); // Trim spaces from the input value
+    const trimmedTokenAddress = tokenAddress.trim(); // Trim spaces from the input value;
+
     if (trimmedTokenAddress) {
       await fetchData(trimmedTokenAddress, type, base58PublicKey); // Pass the trimmed value to fetch data
     }
