@@ -183,6 +183,28 @@ export const Grid = () => {
     }
   };
 
+  const handleShareToSocialMedia = () => {
+
+    const itemsToShare = items.map((item) => ({
+      value: item.value != 'undefined' ? 'X' : item.value,
+      symbol: item.symbol,
+      imgUrl: item.token_img_url,
+    }));
+
+    const storyUrls = itemsToShare.map(shareItem => {
+
+      const text = `My current Solana portfolio: \n 🚀 ${shareItem.symbol}: ${shareItem.value}`;
+      const encodedText = encodeURIComponent(text);
+      const encodedUrl = encodeURIComponent(shareItem.imgUrl);
+
+      return `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`;
+    });
+
+
+    window.location.href = storyUrls[0];
+
+  }
+
   
   const handleElementSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -323,7 +345,9 @@ export const Grid = () => {
                 <div className='fixed bottom-4 left-0 right-0 flex justify-center z-50'>
                   <div className='flex items-center bg-gray-100 rounded-full p-2 shadow-lg space-x-2'>
                     <div className='relative group'>
-                      <button className='bg-green-400 font-bold p-2 rounded-full focus:outline-none focus:ring-2 me-2 text-white flex items-center'>
+                      <button className='bg-green-400 font-bold p-2 rounded-full focus:outline-none focus:ring-2 me-2 text-white flex items-center'
+                      onClick={handleShareToSocialMedia}
+                      >
                         <ShareIcon className='size-5' />
                         &nbsp;&nbsp;Flex
                       </button>
