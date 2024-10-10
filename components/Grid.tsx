@@ -193,7 +193,7 @@ export const Grid = () => {
 
     const storyUrls = itemsToShare.map(shareItem => {
 
-      const text = `My current Solana portfolio: \n 🚀 ${shareItem.symbol}: ${shareItem.value}`;
+      const text = `My current Solana portfolio: \n 🚀 ${shareItem.symbol}: ${shareItem.value} \n Share your Solana with us`;
       const encodedText = encodeURIComponent(text);
       const encodedUrl = encodeURIComponent(shareItem.imgUrl);
 
