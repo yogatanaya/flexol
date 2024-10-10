@@ -193,7 +193,7 @@ export const Grid = () => {
 
     const storyUrls = itemsToShare.map(shareItem => {
 
-      const text = `My current Solana portfolio: \n 🚀 ${shareItem.symbol}: ${shareItem.value} \n Share your Solana with us`;
+      const text = `My current Solana portfolio: \n 🚀 ${shareItem.symbol}: ${shareItem.value} \n track your Solana Portfolio with us: https://flexol.netlify.app`;
       const encodedText = encodeURIComponent(text);
       const encodedUrl = encodeURIComponent(shareItem.imgUrl);
 
