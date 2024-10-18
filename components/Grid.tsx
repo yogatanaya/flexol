@@ -47,6 +47,7 @@ export const Grid = () => {
   const [isClient, setIsClient] = useState(false); // Track client-side rendering
   const { publicKey } = useWallet();
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false); 
 
   // Ensuring client-side rendering to avoid hydration issues
   useEffect(() => {
@@ -97,7 +98,7 @@ export const Grid = () => {
   };
 
   const fetchData = async (trimmedTokenAddress: string, type: string, ownerAddress: string) => {
-    console.log(`Owner address: ${ownerAddress}`);
+    setLoading(true);
     try {
       const apiUrl = 'https://api.dexscreener.com/latest/dex/search?q=';
       const res = await axios.get(`${apiUrl}${trimmedTokenAddress}`);
@@ -108,8 +109,7 @@ export const Grid = () => {
       }
 
       const data = res.data.pairs[0];
-
-      const symbol = data.quoteToken.symbol;
+      const symbol = data.quoteToken.address == trimmedTokenAddress ? data.quoteToken.symbol : data.baseToken.symbol;
       const imgUrl = data.info.imageUrl;
 
       let value;
@@ -187,6 +187,8 @@ export const Grid = () => {
       setItemId((prevItemId) => prevItemId + 1);
     } catch (err: any) {
       console.error(err.message);
+    } finally {
+      setLoading(false); // End loading
     }
   };
 
@@ -331,7 +333,7 @@ export const Grid = () => {
                         autoFocus={true}
                         value={tokenAddress}
                         onChange={(e) => setTokenAddress(e.target.value)}
-                        className='text-1xl font-medium py-2 px-2 border-1 bg-white border-white bg-transparent focus:outline-none text-slate-800 rounded-full w-full'
+                        className='text-1xl font-medium py-2 px-4 border-1 bg-white border-white bg-transparent focus:outline-none text-slate-800 rounded-full w-full'
                       />
 
                       <button className='mx-1 text-white rounded-full bg-transparent p-2'
@@ -360,7 +362,7 @@ export const Grid = () => {
                         &nbsp;&nbsp;Flex
                       </button>
                     </div>
-
+<label className='text-slate-900 '> | Choose Item</label>
                     <div className='relative group'>
                       <button
                         className='bg-white p-2 rounded-full mx-1 text-slate-900'
@@ -415,6 +417,11 @@ export const Grid = () => {
             )}
           </div>
         </>
+      )}
+      {loading && (
+        <div className="loading-overlay">
+          <div className="loader"></div>
+        </div>
       )}
     </div>
   );
