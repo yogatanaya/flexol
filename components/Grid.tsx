@@ -1,4 +1,3 @@
-"use client"
 import React, { useEffect, useState, useRef, } from 'react';
 import {
   WalletModalProvider,
@@ -63,8 +62,6 @@ export const Grid = () => {
   const { publicKey } = useWallet();
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [loading, setLoading] = useState(false); 
-
-  const [ savedItems, setSavedItems ] = useState<ItemProps[]>(initialItems);
 
   // Ensuring client-side rendering to avoid hydration issues
   useEffect(() => {
@@ -220,7 +217,7 @@ export const Grid = () => {
       setItems((prevItems) => [...prevItems, newItem]);
       setItemId((prevItemId) => prevItemId + 1);
 
-      saveItemToProfile(walletAddress, newItem);
+      saveItemToProfile(ownerAddress, newItem);
 
     } catch (err: any) {
       console.error(err.message);
