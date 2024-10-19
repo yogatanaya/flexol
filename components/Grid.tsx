@@ -1,3 +1,4 @@
+"use client"
 import React, { useEffect, useState, useRef, } from 'react';
 import {
   WalletModalProvider,
@@ -23,18 +24,32 @@ import {
   WalletIcon,
 } from '@heroicons/react/16/solid';
 
+import Swal from 'sweetalert2';
+
 import { Item, ItemProps } from './Item'; // Import the Item component
 import WalletProviderComponent from './Wallet';
 import Profile from './Profile';
 import axios from 'axios';
 import { strict } from 'assert';
 
+import { db } from '../app/firebaseConfig';
+import { collection, addDoc, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { fetchProfileData } from '@/app/firebaseUtils';
 
 // Grid size (150px * 150px)
 const GRID_SIZE = 150;
 
 const initialItems: ItemProps[] = [
-  
+  // {
+  //   id: '1',
+  //   type: 'tc',
+  //   x: 0,
+  //   y: 150,
+  //   value: '200',
+  //   token_address: 'xxcczz1234addressxxzsss',
+  //   token_img_url: '',
+  //   symbol: 'SOL'
+  // }
 ];
 
 export const Grid = () => {
@@ -49,6 +64,8 @@ export const Grid = () => {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [loading, setLoading] = useState(false); 
 
+  const [ savedItems, setSavedItems ] = useState<ItemProps[]>(initialItems);
+
   // Ensuring client-side rendering to avoid hydration issues
   useEffect(() => {
     setIsClient(true); // Only true after the client has mounted
@@ -58,10 +75,24 @@ export const Grid = () => {
     // Update the wallet address state when publicKey changes
     if (publicKey) {
       setWalletAddress(publicKey.toBase58());
-      console.log(`Wallet address: ${publicKey.toBase58()}`);
+      // console.log(`Wallet address: ${publicKey.toBase58()}`);
+
+      fetchProfileData(publicKey.toBase58()) 
+        .then((profileData) => {
+          // console.log('profile--data');
+          // console.log(profileData)
+          
+          let savedItems = profileData?.saved_items;
+          setItems(savedItems);
+
+      })
+
     } else {
       setWalletAddress(null); // Set to null if no wallet is connected
     }
+
+   
+
   }, [publicKey]);
 
   const handleFormOpened = (type: string) => {
@@ -74,7 +105,7 @@ export const Grid = () => {
     const occupiedPositions = new Set();
   
     // Mark the grid cells that are occupied
-    items.forEach((item) => {
+    savedItems.forEach((item) => {
       const gridX = Math.floor(item.x / GRID_SIZE);
       const gridY = Math.floor(item.y / GRID_SIZE);
       occupiedPositions.add(`${gridX}-${gridY}`);
@@ -105,7 +136,10 @@ export const Grid = () => {
    
       if (res.data.pairs.length == 0) 
       {
-        alert(`Sorry! you're current wallet is empty `)
+        Swal.fire({
+          text: 'Sorry your current wallet is empty!', 
+          icon: 'warning'
+        });
       }
 
       const data = res.data.pairs[0];
@@ -185,6 +219,9 @@ export const Grid = () => {
 
       setItems((prevItems) => [...prevItems, newItem]);
       setItemId((prevItemId) => prevItemId + 1);
+
+      saveItemToProfile(walletAddress, newItem);
+
     } catch (err: any) {
       console.error(err.message);
     } finally {
@@ -192,26 +229,88 @@ export const Grid = () => {
     }
   };
 
-  const handleShareToSocialMedia = () => {
+  const saveItemToProfile = async (walletAddress:string, newItem: any) => {
+    try {
+      const q = query(
+        collection(db, "profiles"), 
+        where("wallet_address", "==", walletAddress) 
+      );
 
-    const itemsToShare = items.map((item) => ({
-      value: item.value != 'undefined' ? 'X' : item.value,
-      symbol: item.symbol,
-      imgUrl: item.token_img_url,
-    }));
+      const snapshot = await getDocs(q);
 
-    const storyUrls = itemsToShare.map(shareItem => {
+      if (!snapshot.empty) 
+      {
+        const docRef = snapshot.docs[0].ref; 
 
-      const text = `My current Solana portfolio: \n 🚀 ${shareItem.symbol}: ${shareItem.value} \n track your Solana Portfolio with us: https://flexol.netlify.app`;
-      const encodedText = encodeURIComponent(text);
-      const encodedUrl = encodeURIComponent(shareItem.imgUrl);
+        const existingData = snapshot.docs[0].data();
+        const existingItems = existingData.saved_items || [];
 
-      return `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`;
-    });
+        const updatedItems = [...existingItems, newItem];
+
+        await updateDoc(docRef, {
+          saved_items: updatedItems
+        });
+
+        Swal.fire({
+          text: 'New item has been added!', 
+          icon: 'success'
+        });
 
 
-    window.location.href = storyUrls[0];
+      } else  
+      {
+        Swal.fire({
+          text: 'Oops! No profile found on wallet' ,
+          icon: 'warning'
+        });
+      }
 
+    } catch(error) 
+    {
+      Swal.fire({
+        text: 'Oops! something went wrong '+error,
+        icon: 'error'
+      });
+      console.log(error);
+    }
+  }
+
+  const handleSavedToDB = async () => {
+    try  
+    {
+     const q = query(
+      collection(db, "profiles"), 
+      where("wallet_address", '==', walletAddress) 
+     );
+     const snapshot = await getDocs(q);
+
+     if (!snapshot.empty) 
+     {
+      const docRef = snapshot.docs[0].ref;
+
+      await updateDoc(docRef, {
+        saved_items: savedItems
+      });
+
+      console.log('Layout Succesfully saved~!!');
+
+      Swal.fire({
+        text: 'Yay! Layout is now succesfully saved!',
+        icon: 'success'
+      });
+
+     }
+     
+    } catch (error) 
+    {
+      
+      Swal.fire({
+        text: 'Oops! Something went wrong'+error,
+        icon: 'error'
+      });
+
+      console.log('No token found!', error);
+    }
   }
 
   
@@ -276,13 +375,22 @@ export const Grid = () => {
       console.log(`Position ${newX}, ${newY} is occupied, canceling move.`);
     }
   };
+
+
   useEffect(() => {
+  
     console.log("Updated items:", items);
+
   }, [items]);
+
+
   const isPositionOccupied = (x: number, y: number) => {
     return items.some((item) => item.x === x && item.y === y);
   };
   
+  const handleWalletConnect = (address: string) => {
+    setWalletAddress(address);
+  }
 
   return (
     <div>
@@ -290,12 +398,12 @@ export const Grid = () => {
         <>
           <div className='flex justify-between px-4 py-4 lg:justify-end sm:justify-center'>
             <div className='flex space-x-2'>
-            <WalletMultiButton />
+            <WalletMultiButton onConnect={handleWalletConnect}/>
             </div>
           </div>
           <div className='flex flex-col justify-center items-center w-full py-2'>
             <div className='flex justify-center items-center w-[90vw] max-w-[90vw]'>
-              <Profile />
+              <Profile paramWalletAddress={walletAddress}/>
             </div>
           </div>
           <div >
@@ -356,7 +464,7 @@ export const Grid = () => {
                   <div className='flex items-center bg-gray-100 rounded-full p-2 shadow-lg space-x-2'>
                     <div className='relative group'>
                       <button className='bg-green-400 font-bold p-2 rounded-full focus:outline-none focus:ring-2 me-2 text-white flex items-center'
-                      onClick={handleShareToSocialMedia}
+                      onClick={handleSavedToDB}
                       >
                         <ShareIcon className='size-5' />
                         &nbsp;&nbsp;Flex
