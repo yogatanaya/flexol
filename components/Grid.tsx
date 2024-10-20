@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState, useRef, } from 'react';
 import {
   WalletModalProvider,
@@ -53,7 +54,9 @@ const initialItems: ItemProps[] = [
 
 export const Grid = () => {
   const containerRef = useRef<HTMLDivElement | null>(null); 
+  
   const [items, setItems] = useState<ItemProps[]>(initialItems);
+
   const [itemId, setItemId] = useState(initialItems.length + 1);
   const [tokenAddress, setTokenAddress] = useState(''); 
   const [type, setType] = useState('');
@@ -75,14 +78,12 @@ export const Grid = () => {
       // console.log(`Wallet address: ${publicKey.toBase58()}`);
 
       fetchProfileData(publicKey.toBase58()) 
-        .then((profileData) => {
-          // console.log('profile--data');
-          // console.log(profileData)
-          
-          let savedItems = profileData?.saved_items;
-          setItems(savedItems);
-
-      })
+        .then((data) => {
+          if (data) 
+          {
+            setItems(data.saved_items);
+          }
+        })
 
     } else {
       setWalletAddress(null); // Set to null if no wallet is connected
@@ -102,7 +103,7 @@ export const Grid = () => {
     const occupiedPositions = new Set();
   
     // Mark the grid cells that are occupied
-    savedItems.forEach((item) => {
+    items.forEach((item) => {
       const gridX = Math.floor(item.x / GRID_SIZE);
       const gridY = Math.floor(item.y / GRID_SIZE);
       occupiedPositions.add(`${gridX}-${gridY}`);
@@ -286,7 +287,7 @@ export const Grid = () => {
       const docRef = snapshot.docs[0].ref;
 
       await updateDoc(docRef, {
-        saved_items: savedItems
+        saved_items: items
       });
 
       console.log('Layout Succesfully saved~!!');
@@ -385,9 +386,9 @@ export const Grid = () => {
     return items.some((item) => item.x === x && item.y === y);
   };
   
-  const handleWalletConnect = (address: string) => {
-    setWalletAddress(address);
-  }
+  // const handleWalletConnect = (address: string) => {
+  //   setWalletAddress(address);
+  // }
 
   return (
     <div>
@@ -395,7 +396,7 @@ export const Grid = () => {
         <>
           <div className='flex justify-between px-4 py-4 lg:justify-end sm:justify-center'>
             <div className='flex space-x-2'>
-            <WalletMultiButton onConnect={handleWalletConnect}/>
+            <WalletMultiButton/>
             </div>
           </div>
           <div className='flex flex-col justify-center items-center w-full py-2'>
