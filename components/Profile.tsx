@@ -10,7 +10,11 @@ import Swal from 'sweetalert2';
 
 import { fetchProfileData } from '@/app/firebaseUtils';
 
-export const Profile = ({ paramWalletAddress }) => {
+interface ProfileProps {
+    paramWalletAddress: string | null;
+}
+
+export const Profile: React.FC<ProfileProps> = ({ paramWalletAddress }) => {
     const [title, setTitle] = useState('');
     const [caption, setCaption] = useState('');
 

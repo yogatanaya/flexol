@@ -401,7 +401,7 @@ export const Grid = () => {
           </div>
           <div className='flex flex-col justify-center items-center w-full py-2'>
             <div className='flex justify-center items-center w-[90vw] max-w-[90vw]'>
-              <Profile paramWalletAddress={walletAddress}/>
+              <Profile paramWalletAddress={walletAddress || ""}/>
             </div>
           </div>
           <div >
